@@ -221,9 +221,9 @@ null, options1, options1[0])];
                     char[][] tempLayout = layout;
 
                     for (int t = 0; t < uniqueMap.get(rooms); t++) {
-                        File folder = new File("./src/Game Project/-Cassens-Game-Project/" + type + "/" + tempRooms);
+                        File folder = new File("./src/Rooms/" + type + "/" + tempRooms);
                         File[] listOfFiles = folder.listFiles();
-                        String filename = "./src/Game Project/-Cassens-Game-Project/" + type + "/" + tempRooms + "/" + Integer.toString(listOfFiles.length + 1) + ".txt";
+                        String filename = "./src/Rooms/" + type + "/" + tempRooms + "/" + Integer.toString(listOfFiles.length + 1) + ".txt";
                         try {
                             PrintWriter writer = new PrintWriter(filename);
                             for (int i = 0; i < 11; i++) {

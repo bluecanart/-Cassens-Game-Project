@@ -23,7 +23,7 @@ public class Room {
         
         layout = new char[11][11];
         type = ID.charAt(0);
-        File folder = new File("./src/Game Project/-Cassens-Game-Project/" + ID.substring(0,1) + "/" + ID.substring(1,5));
+        File folder = new File("./src/Rooms/" + ID.substring(0,1) + "/" + ID.substring(1,5));
         File[] listOfFiles = folder.listFiles();
         Random myRand = new Random(seed);
         File roomChoice = listOfFiles[myRand.nextInt(listOfFiles.length)];
