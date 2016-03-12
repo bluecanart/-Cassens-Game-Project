@@ -15,16 +15,39 @@ public class Block
 
     private int[] RGBArray;
     private BufferedImage blockImage;
+    protected boolean isTransparent;
     protected boolean isCollidable;//TODO: implement collision detection using this value
 
-    public Block(BufferedImage blockImage, boolean isCollidable)
+    public Block(BufferedImage blockImage, boolean isCollidable, boolean isTransparent)
     {
         this.blockImage = blockImage;
         this.isCollidable = isCollidable;
+        this.isTransparent = isTransparent;
         RGBArray = new int[WIDTH * HEIGHT];
-        for (int i = 0; i < (WIDTH * HEIGHT); i++)
+        if(isTransparent)
         {
-            RGBArray[i] = this.blockImage.getRGB(i % WIDTH, i/WIDTH);
+            int transColor = this.blockImage.getRGB(0,0);
+
+
+            for (int i = 0; i < (WIDTH * HEIGHT); i++)
+            {
+                if ((this.blockImage.getRGB(i % WIDTH, i / WIDTH) == transColor))
+                {
+                    RGBArray[i]= 0x00000000;
+
+                }
+                else
+                {
+                    RGBArray[i] = this.blockImage.getRGB(i % WIDTH, i / WIDTH);
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < (WIDTH * HEIGHT); i++)
+            {
+                RGBArray[i] = this.blockImage.getRGB(i % WIDTH, i / WIDTH);
+            }
         }
     }
 

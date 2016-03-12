@@ -11,7 +11,8 @@ public class GameTimer extends TimerTask
     {
         this.canvas = canvas;//reference to canvas used to it's tick() method repeatedly
         this.timer = new Timer();
-        timer.scheduleAtFixedRate(this, 0, 5);//not final values for the timer
+        timer.scheduleAtFixedRate(this, 0, 15);//not final values for the timer
+
     }
 
     @Override

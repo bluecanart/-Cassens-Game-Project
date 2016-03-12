@@ -1,6 +1,5 @@
 package TurtleGame;
 
-import MapGeneration.Room;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.*;
@@ -9,17 +8,24 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
-import MapGeneration.MapGeneration;
-import MapGeneration.Room;
 
 
-public class GameCanvas extends Canvas implements Runnable, KeyListener, MouseListener
+public class GameCanvas extends Canvas implements KeyListener, MouseListener
 {
-
+    private double seconds = 0.015;
+    private int rendercount = 0;
+    public BufferStrategy bufferStrategy;
+    private BufferedImage backGround;
+    private Controller gameController;
     private boolean upKeyDown = false;
     private boolean downKeyDown = false;
     private boolean leftKeyDown = false;
     private boolean rightKeyDown = false;
+
+    public boolean upButtonDown = false;
+    public boolean downButtonDown = false;
+    public boolean leftButtonDown = false;
+    public boolean rightButtonDown = false;
 
     public static final int UP = KeyEvent.VK_W;
     public static final int DOWN = KeyEvent.VK_S;
@@ -30,31 +36,27 @@ public class GameCanvas extends Canvas implements Runnable, KeyListener, MouseLi
     BufferedImage grassImage;
     BufferedImage rockImage;
     BufferedImage heroImage;
-    
+
     int[] tempBlockRGB;//reference to the image used in Blocks/hero
 
     Block grassBlock;
     Block rockBlock;
 
     //block size = 30x30 pixels
-
     int[][] blocks = new int[BLOCKS_WIDE][BLOCKS_TALL];
-    public static final int IMAGE_WIDTH = 48*30;//for now, width must be divisible by 30
-    public static final int IMAGE_HEIGHT = 27*30;//for now, height must be divisible by 30
+    public static final int IMAGE_WIDTH = 64 * 30;//48 * 30;//for now, width must be divisible by 30
+    public static final int IMAGE_HEIGHT = 36 * 30;//27 * 30;//for now, height must be divisible by 30
     public static int BLOCKS_WIDE = IMAGE_WIDTH/30;
     public static int BLOCKS_TALL = IMAGE_HEIGHT/30;
 
     Hero myHero;
 
-    private int tickCounter;//number of ticks
 
-    private BufferedImage mainDisplay;
     public GameCanvas()
     {
-        tickCounter = 0;
-
+        backGround = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        setBackground(Color.black); //TODO: this prevented flickering if window was resized to be greater than the drawable area
         setPreferredSize(new Dimension(IMAGE_WIDTH,IMAGE_HEIGHT));
-        mainDisplay = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 
         //generates the blockMap
         for(int i = 0; i < blocks.length; i++)
@@ -77,24 +79,39 @@ public class GameCanvas extends Canvas implements Runnable, KeyListener, MouseLi
         //loads images
         try
         {
-            grassImage = ImageIO.read(new File("./src/media/Grass.png"));
-            rockImage = ImageIO.read(new File("./src/media/Rock.png"));
-            heroImage = ImageIO.read(new File("./src/media/Hero.png"));
+            grassImage = ImageIO.read(new File("./media/Grass.png"));
+            rockImage = ImageIO.read(new File("./media/Rock.png"));
+            heroImage = ImageIO.read(new File("./media/Hero.png"));
         }
         catch (IOException e)
         {
             e.printStackTrace();
         }
-        grassBlock = new Block(grassImage, false);
-        rockBlock = new Block(rockImage, true);
+        grassBlock = new Block(grassImage, false, false);
+        rockBlock = new Block(rockImage, true, false);
         myHero = new Hero(heroImage);
+
+        try
+        {
+            gameController = new Controller(this);
+        }
+        catch (UnsatisfiedLinkError e)
+        {
+            System.out.println("unable to load Controller DLL");
+        }
 
         addKeyListener(this);
         addMouseListener(this);
+        generateBackground();
+    }
 
+
+    {
 
     }
 
+
+    /*
     public void run()
     {
         while (true)
@@ -102,108 +119,99 @@ public class GameCanvas extends Canvas implements Runnable, KeyListener, MouseLi
             render();
         }
     }
+    */
+
+    //Generates the background image using the blocks array
+    public void generateBackground()
+    {
+        for (int i = 0; i < BLOCKS_WIDE; i++)
+        {
+            for (int j = 0; j < BLOCKS_TALL; j++)
+            {
+                switch (blocks[i][j])
+                {
+                    case (Block.GRASS):
+                        tempBlockRGB = grassBlock.getRGBArray();
+                        break;
+
+                    case (Block.ROCK):
+                        tempBlockRGB = rockBlock.getRGBArray();
+                        break;
+                    default:
+                        System.out.println("Invalid block");//TODO: perhaps throw an exception, this code should not be reached
+                }
+
+                int xPosition = i * Block.WIDTH;
+                int yPosition = j * Block.HEIGHT;
+                backGround.setRGB(xPosition, yPosition, Block.WIDTH, Block.HEIGHT, tempBlockRGB, 0, Block.WIDTH);//adds each block to the mainDisplay Buffer
+            }
+        }
+    }
 
 
     public void render()
     {
+        rendercount++;
+        tempBlockRGB = myHero.getRGBArray();
+        Graphics canvasGraphics = bufferStrategy.getDrawGraphics();
+        canvasGraphics.drawImage(backGround, 0, 0, null);//draws image to screen
+        canvasGraphics.drawImage(heroImage, myHero.getXPos(), myHero.getYPos(), myHero.getXPos() + Hero.IMAGE_WIDTH, myHero.getYPos() + Hero.IMAGE_HEIGHT, 0, 0, Hero.IMAGE_WIDTH, Hero.IMAGE_HEIGHT, null);
+        canvasGraphics.drawString(String.valueOf(rendercount/seconds), 10 ,10);
+        bufferStrategy.show();
+        canvasGraphics.dispose();
 
-        BufferStrategy bufferStrat = getBufferStrategy();
-        if(bufferStrat == null)
-        {
-            createBufferStrategy(3);
-            return;
-        }
-        else
-        {
-            //Renders each block
-
-            for (int i = 0; i < BLOCKS_WIDE; i++)
-            {
-                for (int j = 0; j < BLOCKS_TALL; j++)
-                {
-                    switch (blocks[i][j])
-                    {
-                        case (Block.GRASS):
-                        {
-                            tempBlockRGB = grassBlock.getRGBArray();
-                            break;
-                        }
-
-                        case (Block.ROCK):
-                        {
-                            tempBlockRGB = rockBlock.getRGBArray();
-                            break;
-                        }
-                        default:
-                        {
-                            System.out.println("Invalid block");//TODO: perhaps throw an exception, this code should not be reached
-                        }
-                    }
-
-                    int xPosition = i * Block.WIDTH;
-                    int yPosition = j * Block.HEIGHT;
-                    mainDisplay.setRGB(xPosition, yPosition, Block.WIDTH, Block.HEIGHT, tempBlockRGB, 0, Block.WIDTH);//adds each block to the mainDisplay Buffer
-                }
-            }
-            tempBlockRGB = myHero.getRGBArray();
-
-            mainDisplay.setRGB(myHero.getXPos(), myHero.getYPos(), Block.WIDTH, Block.HEIGHT, tempBlockRGB, 0, Block.WIDTH);//adds the hero after adding each block
-
-
-
-
-
-
-            Graphics myGraphics = bufferStrat.getDrawGraphics();
-            bufferStrat.show();
-            myGraphics.drawImage(mainDisplay,0,0,this);//draws image to screen
-            myGraphics.dispose();
-
-
-        }
     }
 
     public void tick()//called by the TurtleGame.GameTimer
     {
-        tickCounter++;//currently unused, will be used for events that occur only after a certain number of ticks.
         updateHeroPos();
+        render();
+        if (gameController != null)//will be null if gameController failed to link with JNIXinput.dll
+        {
+            gameController.tick();
+        }
+        seconds += .015;
+
+
     }
 
 
-    //changes hero position based on the state of the WASD keys
+    //changes hero position based on the state of the WASD keys/state of controller
     private void updateHeroPos()
     {
+        int speed = 5;
 
-          if (upKeyDown) {
-              if (heroCollides(myHero.getXPos(), myHero.getYPos() - 1)) {
+
+          if (upKeyDown || upButtonDown) {
+              if (heroCollides(myHero.getXPos(), myHero.getYPos() - speed)) {
                     //do nothing
                 } else {
-                    myHero.incrementYPos(-1);//TODO: Bounds checking on heroes location
+                    myHero.incrementYPos(-speed);//TODO: Bounds checking on heroes location
                 }
             }
 
-        if (downKeyDown) {
-            if (heroCollides(myHero.getXPos(), myHero.getYPos() + 1)) {
+        if (downKeyDown || downButtonDown) {
+            if (heroCollides(myHero.getXPos(), myHero.getYPos() + speed)) {
                     //do nothing
                 } else {
-                    myHero.incrementYPos(1);
+                    myHero.incrementYPos(speed);
                 }
             }
 
-        if (leftKeyDown) {
-            if (heroCollides(myHero.getXPos() -1, myHero.getYPos())) {
+        if (leftKeyDown || leftButtonDown) {
+            if (heroCollides(myHero.getXPos() -speed, myHero.getYPos())) {
                 //do nothing
                 } else {
-                    myHero.incrementXPos(-1);
+                    myHero.incrementXPos(-speed);
                 }
             }
 
 
-        if (rightKeyDown) {
-                if (heroCollides(myHero.getXPos() + 1, myHero.getYPos())) {
+        if (rightKeyDown || rightButtonDown) {
+                if (heroCollides(myHero.getXPos() + speed, myHero.getYPos())) {
                     //do nothing
                 } else {
-                    myHero.incrementXPos(1);
+                    myHero.incrementXPos(speed);
                 }
             }
 
@@ -218,23 +226,15 @@ public class GameCanvas extends Canvas implements Runnable, KeyListener, MouseLi
         int heroBlockTypeSW = blocks[(newX)/30][(newY + 29)/30];//block SW of hero that hero partially occupies
         int heroBlockTypeSE = blocks[(newX + 29)/30][(newY + 29)/30];//block SE of hero that hero partially occupies
 
-        if (Block.isBlockCollidable(heroBlockTypeNW))
+        if ((Block.isBlockCollidable(heroBlockTypeNW))  || (Block.isBlockCollidable(heroBlockTypeNE)) ||
+            (Block.isBlockCollidable(heroBlockTypeSW))  || (Block.isBlockCollidable(heroBlockTypeSE)))
         {
             return true;
         }
-        if (Block.isBlockCollidable(heroBlockTypeNE))
+        else
         {
-            return true;
+            return false;
         }
-        if (Block.isBlockCollidable(heroBlockTypeSW))
-        {
-            return true;
-        }
-        if (Block.isBlockCollidable(heroBlockTypeSE))
-        {
-            return true;
-        }
-        return false;
 
 
     }
@@ -245,27 +245,23 @@ public class GameCanvas extends Canvas implements Runnable, KeyListener, MouseLi
         switch (e.getKeyCode())
         {
             case UP:
-            {
                 upKeyDown = true;
-            }break;
+            break;
 
             case DOWN:
-            {
                 downKeyDown = true;
-            }break;
+            break;
 
             case LEFT:
-            {
                 leftKeyDown = true;
-            }break;
+            break;
 
             case RIGHT:
-            {
                 rightKeyDown = true;
-            }break;
+            break;
 
+            //temp event for spacebar, randomizes and regenerates background
             case KeyEvent.VK_SPACE:
-            {
                 for(int i = 0; i < blocks.length; i++)
                 {
                     for (int j = 0; j < blocks[0].length; j++)
@@ -282,7 +278,9 @@ public class GameCanvas extends Canvas implements Runnable, KeyListener, MouseLi
                         }
                     }
                 }
-            }
+                generateBackground();
+                break;
+
 
             default:
             {
@@ -301,24 +299,20 @@ public class GameCanvas extends Canvas implements Runnable, KeyListener, MouseLi
     {
         switch (e.getKeyCode())
         {
-            case UP: {
+            case UP:
                 upKeyDown = false;
-            }
             break;
 
-            case DOWN: {
+            case DOWN:
                 downKeyDown = false;
-            }
             break;
 
-            case LEFT: {
+            case LEFT:
                 leftKeyDown = false;
-            }
             break;
 
-            case RIGHT: {
+            case RIGHT:
                 rightKeyDown = false;
-            }
             break;
         }
 
@@ -338,6 +332,7 @@ public class GameCanvas extends Canvas implements Runnable, KeyListener, MouseLi
             int yBlock = e.getY()/Block.HEIGHT;
 
             blocks[xBlock][yBlock] = (blocks[xBlock][yBlock] + 1) % 2;
+            generateBackground();
         }
 
     }
@@ -356,4 +351,6 @@ public class GameCanvas extends Canvas implements Runnable, KeyListener, MouseLi
     public void mouseExited(MouseEvent e) {
 
     }
+
+
 }

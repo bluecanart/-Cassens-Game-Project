@@ -7,8 +7,7 @@ import java.awt.image.BufferedImage;
  */
 public class Hero
 {
-    public static final int GRASS = 0;
-    public static final int ROCK = 1;
+
     public static final int IMAGE_WIDTH = 30;
     public static final int IMAGE_HEIGHT = 30;
     private int xPos;
@@ -21,13 +20,31 @@ public class Hero
     {
         this.heroImage = heroImage;
         RGBArray = new int[IMAGE_WIDTH * IMAGE_HEIGHT];
+        int transColor = this.heroImage.getRGB(0,0);
         for (int i = 0; i < (IMAGE_WIDTH * IMAGE_HEIGHT); i++)
         {
-            RGBArray[i] = this.heroImage.getRGB(i % IMAGE_WIDTH, i/IMAGE_HEIGHT);
+            if(transColor == this.heroImage.getRGB(i % IMAGE_WIDTH, i/IMAGE_HEIGHT))
+            {
+                RGBArray[i] = 0x00000000;
+            }
+            else
+            {
+                RGBArray[i] = this.heroImage.getRGB(i % IMAGE_WIDTH, i / IMAGE_HEIGHT);
+            }
         }
-        //initial position in blocks (for now)
-        xPos = 24 *30;
-        yPos = 13 * 30;
+        heroImage.setRGB(0, 0 , 30, 30,RGBArray, 0, 30);
+        //initial position
+        xPos = GameCanvas.IMAGE_WIDTH/2;
+        yPos = GameCanvas.IMAGE_HEIGHT/2;
+    }
+
+
+    public int[] calcBlockLocation()
+    {
+        int[] heroBlockLocation = new int[2];
+        heroBlockLocation[0] = xPos/30;
+        heroBlockLocation[1] = yPos/30;
+        return heroBlockLocation;
     }
 
     public int[] getRGBArray()
