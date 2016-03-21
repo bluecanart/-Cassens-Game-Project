@@ -61,6 +61,7 @@ class MyPanel extends JPanel {
         Random myRand = new Random();
         int size = 10;
         long seed = myRand.nextLong();
+//        seed = 11;
         int rooms = 20;
         
         try {
@@ -72,6 +73,7 @@ class MyPanel extends JPanel {
             myMap.put('e', new Color(237, 114, 107));
             myMap.put('s', new Color(97, 199, 248));
             myMap.put('r', new Color(125, 114, 98));
+            myMap.put('d', new Color(255, 255, 255));
             
 //            for (int i = 0; i < 10; i++) {
 //                for (int s = 0; s < 10; s++) {

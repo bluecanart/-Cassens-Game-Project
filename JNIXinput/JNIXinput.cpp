@@ -1,5 +1,5 @@
 
-#include "TurtleGame_Controller.h"
+#include <game_Controller.h>
 #include <windows.h>
 #include <Xinput.h>
 #include <jni.h>
@@ -23,7 +23,7 @@ LoadXInput(void);
 
 
 extern "C"
-JNIEXPORT jintArray JNICALL Java_TurtleGame_Controller_getControllerState
+JNIEXPORT jintArray JNICALL Java_game_Controller_getControllerState
 (JNIEnv * env, jobject jobj)
 {
 	jintArray newArray = env->NewIntArray(4);
@@ -53,7 +53,7 @@ JNIEXPORT jintArray JNICALL Java_TurtleGame_Controller_getControllerState
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_TurtleGame_Controller_loadXinput
+JNIEXPORT void JNICALL Java_game_Controller_loadXinput
 (JNIEnv * env, jobject jobj)
 {
 	LoadXInput();
@@ -63,6 +63,7 @@ static void
 LoadXInput(void)
 {
 	HMODULE XInputLibrary = LoadLibrary("xinput1_4.dll");
+	
 	if (!XInputLibrary)
 	{
 		XInputLibrary = LoadLibrary("xinput1_3.dll");
@@ -71,5 +72,8 @@ LoadXInput(void)
 	{
 		XInputGetState = (x_input_get_state *)GetProcAddress(XInputLibrary, "XInputGetState");
 	}
+	
 }
+
+
 

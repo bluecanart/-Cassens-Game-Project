@@ -60,6 +60,7 @@ class RoomPanel extends JPanel {
         stringMap.put('e', "Exit");
         stringMap.put('s', "Start");
         stringMap.put('r', "Rock");
+        stringMap.put('d', "Door");
         
         uniqueMap.put("0000", 1);
         uniqueMap.put("1000", 4);
@@ -125,6 +126,7 @@ null, options1, options1[0])];
         getInputMap().put(KeyStroke.getKeyStroke('s'), "start");
         getInputMap().put(KeyStroke.getKeyStroke('e'), "exit");
         getInputMap().put(KeyStroke.getKeyStroke('r'), "rock");
+        getInputMap().put(KeyStroke.getKeyStroke('d'), "door");
         getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "save");
         getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "new");
         getActionMap().put("empty", new AbstractAction() {
@@ -140,6 +142,14 @@ null, options1, options1[0])];
             public void actionPerformed(ActionEvent e) {
                 mode = 'w';
                 System.out.println("Draw mode is now: Wall");
+                repaint();
+            }
+        });
+        getActionMap().put("door", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mode = 'd';
+                System.out.println("Draw mode is now: Door");
                 repaint();
             }
         });
@@ -263,6 +273,7 @@ null, options1, options1[0])];
                 stringMap.put('e', "Exit");
                 stringMap.put('s', "Start");
                 stringMap.put('r', "Rock");
+                stringMap.put('d', "Door");
                 String[] options1 = {"Boss Room", "Start Room", "Normal Room"};
                 String[] trueOptions = {"x", "o", "+"};
                 type = trueOptions[JOptionPane.showOptionDialog(null, "What type of room are you working on?", "Select Room",
@@ -337,6 +348,7 @@ null, options1, options1[0])];
         myMap.put('e', new Color(237, 114, 107));
         myMap.put('s', new Color(97, 199, 248));
         myMap.put('r', new Color(125, 114, 98));
+        myMap.put('d', new Color(255, 255, 255));
         
         for (int i = 0; i < 11; i++) {
             
@@ -403,7 +415,7 @@ null, options1, options1[0])];
                     if (tempRooms.charAt(0) == '0') {
                         tempLayout[i][s] = 'w';
                     } else {
-                        tempLayout[i][s] = '-';
+                        tempLayout[i][s] = 'd';
                     }
                     
                 } else if (( i == 5) && (s == 10)) {
@@ -411,7 +423,7 @@ null, options1, options1[0])];
                     if (tempRooms.charAt(1) == '0') {
                         tempLayout[i][s] = 'w';
                     } else {
-                        tempLayout[i][s] = '-';
+                        tempLayout[i][s] = 'd';
                     }
                     
                 } else if (( i == 10) && (s == 5)) {
@@ -419,7 +431,7 @@ null, options1, options1[0])];
                     if (tempRooms.charAt(2) == '0') {
                         tempLayout[i][s] = 'w';
                     } else {
-                        tempLayout[i][s] = '-';
+                        tempLayout[i][s] = 'd';
                     }
                     
                 } else if (( i == 5) && (s == 0)) {
@@ -427,7 +439,7 @@ null, options1, options1[0])];
                     if (tempRooms.charAt(3) == '0') {
                         tempLayout[i][s] = 'w';
                     } else {
-                        tempLayout[i][s] = '-';
+                        tempLayout[i][s] = 'd';
                     }
                     
                 } else if (s == 0 || i == 0 || s == 10 || i == 10) {

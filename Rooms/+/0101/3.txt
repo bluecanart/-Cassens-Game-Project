@@ -1,11 +1,11 @@
 wwwwwwwwwww
 w---------w
-w-rr---rr-w
+w-rrr-rrr-w
 w-r-----r-w
 w---------w
-w----r----w
+d---------d
 w---------w
+w-r-----r-w
+w-rrr-rrr-w
 w---------w
-w---------w
-w---------w
-wwwww-wwwww
+wwwwwwwwwww
