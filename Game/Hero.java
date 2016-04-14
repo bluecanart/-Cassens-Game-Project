@@ -41,8 +41,8 @@ public class Hero
         Assets.heroImage = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
         Assets.heroImage.setRGB(0,0,32, 32,RGBArray, 0 ,32);
         //initial position
-        xPos = GameCanvas.IMAGE_WIDTH/2;
-        yPos = GameCanvas.IMAGE_HEIGHT/2;
+        xPos = GameCanvas.IMAGE_WIDTH/2-heroImage.getWidth()/2;
+        yPos = GameCanvas.IMAGE_HEIGHT/2-heroImage.getHeight()/2;
         this.speed = 4;
     }
 

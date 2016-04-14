@@ -19,9 +19,12 @@ public class Room {
     public char[][] layout;
     public char type;
     
+    final int ROOMWIDTH = 15;
+    final int ROOMHEIGHT = 9;
+    
     public Room(String ID, long seed) throws FileNotFoundException {
         
-        layout = new char[11][11];
+        layout = new char[ROOMHEIGHT][ROOMWIDTH];
         type = ID.charAt(0);
         File folder = new File("./src/Rooms/" + ID.substring(0,1) + "/" + ID.substring(1,5));
         File[] listOfFiles = folder.listFiles();
@@ -42,9 +45,9 @@ public class Room {
     
     public void printRoom() {
         
-        for(int i = 0; i < 11; i++) {
+        for(int i = 0; i < ROOMHEIGHT; i++) {
             
-            for(int s = 0; s < 11; s++) {
+            for(int s = 0; s < ROOMWIDTH; s++) {
             
                 System.out.print(layout[i][s]);
             

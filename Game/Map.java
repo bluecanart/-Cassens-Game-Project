@@ -16,10 +16,10 @@ public class Map
 
     protected Block[][] currentMap;
 
-    public Map(Room room, int size)
+    public Map(Room room, int ROOMWIDTH, int ROOMHEIGHT)
     {
-        BLOCKS_WIDE = size;
-        BLOCKS_TALL = size;
+        BLOCKS_WIDE = ROOMWIDTH;
+        BLOCKS_TALL = ROOMHEIGHT;
         currentMap = new Block[BLOCKS_WIDE][BLOCKS_TALL];
 
         updateMap(room);
@@ -55,9 +55,9 @@ public class Map
     
     public void updateMap(Room currentRoom) {
         
-        for (int i = 0; i < currentMap.length; i++)
+        for (int i = 0; i < BLOCKS_TALL; i++)
         {
-            for(int j = 0; j < currentMap.length; j++)
+            for(int j = 0; j < BLOCKS_WIDE; j++)
             {
                 switch (currentRoom.layout[i][j])
                 {

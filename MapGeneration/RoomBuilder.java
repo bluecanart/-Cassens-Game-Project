@@ -3,6 +3,7 @@ package MapGeneration;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -10,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -22,6 +24,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+
 
 public class RoomBuilder {
     
@@ -40,15 +43,19 @@ public class RoomBuilder {
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.add(new RoomPanel());
         f.pack();
-        f.setSize(560, 580);
+        f.setSize(15*50+7, 9*50+30);
+        f.setResizable(false);
         f.setVisible(true);
     }
 }
 
 class RoomPanel extends JPanel {
     
+    final int ROOMWIDTH = 15;
+    final int ROOMHEIGHT = 9;
+    
     char mode = '-';
-    char layout[][] = new char[11][11];
+    char layout[][] = new char[ROOMHEIGHT][ROOMWIDTH];
     String type;
     String rooms;
     Map<Character, String> stringMap = new HashMap<Character, String>();
@@ -63,27 +70,44 @@ class RoomPanel extends JPanel {
         stringMap.put('d', "Door");
         
         uniqueMap.put("0000", 1);
-        uniqueMap.put("1000", 4);
-        uniqueMap.put("0100", 4);
-        uniqueMap.put("0010", 4);
-        uniqueMap.put("0001", 4);
-        uniqueMap.put("0011", 4);
-        uniqueMap.put("0110", 4);
-        uniqueMap.put("1100", 4);
-        uniqueMap.put("1001", 4);
-        uniqueMap.put("0101", 2);
-        uniqueMap.put("1010", 2);
-        uniqueMap.put("1011", 4);
-        uniqueMap.put("1101", 4);
-        uniqueMap.put("0111", 4);
-        uniqueMap.put("1110", 4);
+        uniqueMap.put("1000", 2);
+        uniqueMap.put("0100", 2);
+        uniqueMap.put("0010", 2);
+        uniqueMap.put("0001", 2);
+        uniqueMap.put("0011", 2);
+        uniqueMap.put("0110", 2);
+        uniqueMap.put("1100", 2);
+        uniqueMap.put("1001", 2);
+        uniqueMap.put("0101", 1);
+        uniqueMap.put("1010", 1);
+        uniqueMap.put("1011", 2);
+        uniqueMap.put("1101", 2);
+        uniqueMap.put("0111", 2);
+        uniqueMap.put("1110", 2);
         uniqueMap.put("1111", 1);
         
-        String[] options1 = {"Exit Room", "Start Room", "Normal Room"};
-        String[] trueOptions = {"x", "o", "+"};
+        String[] options1 = {"Exit Room", "Start Room", "Normal Room", "Generate All Defaults"};
+        String[] trueOptions = {"x", "o", "+", "a"};
         type = trueOptions[JOptionPane.showOptionDialog(null, "What type of room are you working on?", "Select Room",
 JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE,
 null, options1, options1[0])];
+        
+        if (type == "a") {
+            
+            String[] typeOptions = {"x", "o", "+"};
+            String[] roomOptions = {"0000", "1111", "1000", "0100", "1100", "1010", "0101", "1001", "1110", "1101"};
+            for (String loopType: typeOptions) {
+                for (String loopRooms: roomOptions) {
+                    if (loopType != "x" || (loopRooms == "1000" || loopRooms == "0100" || loopRooms == "0010" || loopRooms == "0001")) {
+                        layout = initLayout(loopRooms, loopType);
+                        saveLayout(layout, loopRooms, loopType);
+                    }
+                }
+            }
+            
+            System.exit(0);
+            
+        }
         
         JCheckBox north = new JCheckBox("North");
         JCheckBox east = new JCheckBox("East");
@@ -117,7 +141,7 @@ null, options1, options1[0])];
         final String typesave = type;
         final String roomssave = rooms;
         
-        layout = initLayout(rooms);
+        layout = initLayout(rooms, type);
         
         setBorder(BorderFactory.createLineBorder(Color.black));
         
@@ -129,6 +153,7 @@ null, options1, options1[0])];
         getInputMap().put(KeyStroke.getKeyStroke('d'), "door");
         getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "save");
         getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "new");
+        
         getActionMap().put("empty", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -177,103 +202,25 @@ null, options1, options1[0])];
                 repaint();
             }
         });
+        
         getActionMap().put("save", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                
-                boolean sent = false;
-                
-                if (type == "x"){
-                    
-                    sentloop:
-                    for(int i = 0; i < 11; i++) {
-                        
-                        for(int s = 0; s < 11; s++) {
-                            
-                            if (layout[i][s] == 'e') {
-                                
-                                sent = true;
-                                break sentloop;
-                                
-                            } 
-                            
-                        }
-                        
-                    }
-                    
-                } else if (type == "o") {
-                    
-                    sentloop:
-                    for(int i = 0; i < 11; i++) {
-                        
-                        for(int s = 0; s < 11; s++) {
-                            
-                            if (layout[i][s] == 's') {
-                                
-                                sent = true;
-                                break sentloop;
-                                
-                            } 
-                            
-                        }
-                        
-                    }
-                    
-                } else {
-                    
-                    sent = true;
-                    
-                }
-                
-                if (sent) {
-                    System.out.println("Saving");
-                    String tempRooms = rooms;
-                    char[][] tempLayout = layout;
-
-                    for (int t = 0; t < uniqueMap.get(rooms); t++) {
-                        File folder = new File("./src/Rooms/" + type + "/" + tempRooms);
-                        File[] listOfFiles = folder.listFiles();
-                        String filename = "./src/Rooms/" + type + "/" + tempRooms + "/" + Integer.toString(listOfFiles.length + 1) + ".txt";
-                        try {
-                            PrintWriter writer = new PrintWriter(filename);
-                            for (int i = 0; i < 11; i++) {
-                                String line = "";
-
-                                for (int s = 0; s < 11; s++) {
-
-                                    line += tempLayout[i][s];
-
-                                }
-
-                                writer.println(line);
-
-                            }
-                            writer.close();
-                            System.out.println("File saved at: " + filename);
-                        } catch (IOException ex) {
-                            Logger.getLogger(RoomPanel.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-
-                        tempRooms = rotateString(tempRooms);
-                        tempLayout = rotateLayout(tempLayout);
-                    }
-                } else {
-                    
-                    System.out.println("Add an entrance/exit before you try saving.");
-                    
-                }
+                saveLayout(layout, rooms, type);
             }
         });
         getActionMap().put("new", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.out.println("Creating new room.");
+                
                 stringMap.put('w', "Wall");
                 stringMap.put('-', "Empty");
                 stringMap.put('e', "Exit");
                 stringMap.put('s', "Start");
                 stringMap.put('r', "Rock");
                 stringMap.put('d', "Door");
+                
                 String[] options1 = {"Boss Room", "Start Room", "Normal Room"};
                 String[] trueOptions = {"x", "o", "+"};
                 type = trueOptions[JOptionPane.showOptionDialog(null, "What type of room are you working on?", "Select Room",
@@ -312,7 +259,7 @@ null, options1, options1[0])];
                 final String typesave = type;
                 final String roomssave = rooms;
                 
-                layout = initLayout(rooms);
+                layout = initLayout(rooms, type);
                 
                 repaint();
             }
@@ -323,11 +270,11 @@ null, options1, options1[0])];
             public void mousePressed(MouseEvent e) {
                 int x = (int)(e.getX()/50);
                 int y = (int)(e.getY()/50);
-                if (x > 10) {
-                    x = 10;
+                if (x > ROOMWIDTH-1) {
+                    x = ROOMWIDTH-1;
                 }
-                if (y > 10) {
-                    y = 10;
+                if (y > ROOMHEIGHT-1) {
+                    y = ROOMHEIGHT-1;
                 }
                 layout[y][x] = mode;
                 repaint();
@@ -350,9 +297,9 @@ null, options1, options1[0])];
         myMap.put('r', new Color(125, 114, 98));
         myMap.put('d', new Color(255, 255, 255));
         
-        for (int i = 0; i < 11; i++) {
+        for (int i = 0; i < ROOMHEIGHT; i++) {
             
-            for (int s = 0; s < 11; s++) {
+            for (int s = 0; s < ROOMWIDTH; s++) {
                 
                 g.setColor(myMap.get(layout[i][s]));
                 g.fillRect(s*50,i*50,50,50);
@@ -366,15 +313,15 @@ null, options1, options1[0])];
         g.drawString("Mode: " + stringMap.get(mode),10,40);
     }
     
-    public char[][] rotateLayout(char[][] oldLayout) {
+    public char[][] flipLayout(char[][] oldLayout) {
         
-        char[][] newLayout = new char[11][11];
+        char[][] newLayout = new char[ROOMHEIGHT][ROOMWIDTH];
         
-        for(int i = 0; i < 11; i++) {
+        for(int i = 0; i < ROOMHEIGHT; i++) {
             
-            for(int s = 0; s < 11; s++) {
+            for(int s = 0; s < ROOMWIDTH; s++) {
             
-                newLayout[s][10-i] = oldLayout[i][s];
+                newLayout[i][s] = oldLayout[ROOMHEIGHT-1-i][ROOMWIDTH-1-s];
             
             }
             
@@ -382,6 +329,92 @@ null, options1, options1[0])];
         
         return newLayout;
         
+    }
+        
+    public void saveLayout(char[][] inputLayout, String inputRooms, String inputType) {
+            
+        boolean sent = false;
+                
+                if (inputType == "x"){
+                    
+                    sentloop:
+                    for(int i = 0; i < ROOMHEIGHT; i++) {
+                        
+                        for(int s = 0; s < ROOMWIDTH; s++) {
+                            
+                            if (inputLayout[i][s] == 'e') {
+                                
+                                sent = true;
+                                break sentloop;
+                                
+                            } 
+                            
+                        }
+                        
+                    }
+                    
+                } else if (inputType == "o") {
+                    
+                    sentloop:
+                    for(int i = 0; i < ROOMHEIGHT; i++) {
+                        
+                        for(int s = 0; s < ROOMWIDTH; s++) {
+                            
+                            if (inputLayout[i][s] == 's') {
+                                
+                                sent = true;
+                                break sentloop;
+                                
+                            } 
+                            
+                        }
+                        
+                    }
+                    
+                } else {
+                    
+                    sent = true;
+                    
+                }
+                
+                if (sent) {
+                    System.out.println("Saving");
+                    String tempRooms = inputRooms;
+                    char[][] tempLayout = inputLayout;
+
+                    for (int t = 0; t < uniqueMap.get(inputRooms); t++) {
+                        File folder = new File("./src/Rooms/" + inputType + "/" + tempRooms);
+                        File[] listOfFiles = folder.listFiles();
+                        String filename = "./src/Rooms/" + inputType + "/" + tempRooms + "/" + Integer.toString(listOfFiles.length + 1) + ".txt";
+                        try {
+                            PrintWriter writer = new PrintWriter(filename);
+                            for (int i = 0; i < ROOMHEIGHT; i++) {
+                                String line = "";
+
+                                for (int s = 0; s < ROOMWIDTH; s++) {
+
+                                    line += tempLayout[i][s];
+
+                                }
+
+                                writer.println(line);
+
+                            }
+                            writer.close();
+                            System.out.println("File saved at: " + filename);
+                        } catch (IOException ex) {
+                            Logger.getLogger(RoomPanel.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                        tempRooms = rotateString(tempRooms);
+                        tempRooms = rotateString(tempRooms);
+                        tempLayout = flipLayout(tempLayout);
+                    }
+                } else {
+                    
+                    System.out.println("Add an entrance/exit before you try saving.");
+                    
+                }
+            
     }
     
     public String rotateString(String oldString) {
@@ -402,15 +435,15 @@ null, options1, options1[0])];
         
     }
     
-    public char[][] initLayout(String tempRooms) {
+    public char[][] initLayout(String tempRooms, String type) {
         
-        char tempLayout[][] = new char[11][11];
+        char tempLayout[][] = new char[ROOMHEIGHT][ROOMWIDTH];
         
-        for (int i = 0; i < 11; i++) {
+        for (int i = 0; i < ROOMHEIGHT; i++) {
             
-            for (int s = 0; s < 11; s++) {
+            for (int s = 0; s < ROOMWIDTH; s++) {
                 
-                if (( i == 0) && (s == 5)) {
+                if (( i == 0) && (s == (ROOMWIDTH-1)/2)) {
                     
                     if (tempRooms.charAt(0) == '0') {
                         tempLayout[i][s] = 'w';
@@ -418,7 +451,7 @@ null, options1, options1[0])];
                         tempLayout[i][s] = 'd';
                     }
                     
-                } else if (( i == 5) && (s == 10)) {
+                } else if (( i == (ROOMHEIGHT-1)/2) && (s == ROOMWIDTH-1)) {
                     
                     if (tempRooms.charAt(1) == '0') {
                         tempLayout[i][s] = 'w';
@@ -426,7 +459,7 @@ null, options1, options1[0])];
                         tempLayout[i][s] = 'd';
                     }
                     
-                } else if (( i == 10) && (s == 5)) {
+                } else if (( i == ROOMHEIGHT-1) && (s == (ROOMWIDTH-1)/2)) {
                     
                     if (tempRooms.charAt(2) == '0') {
                         tempLayout[i][s] = 'w';
@@ -434,7 +467,7 @@ null, options1, options1[0])];
                         tempLayout[i][s] = 'd';
                     }
                     
-                } else if (( i == 5) && (s == 0)) {
+                } else if (( i == (ROOMHEIGHT-1)/2) && (s == 0)) {
                     
                     if (tempRooms.charAt(3) == '0') {
                         tempLayout[i][s] = 'w';
@@ -442,10 +475,18 @@ null, options1, options1[0])];
                         tempLayout[i][s] = 'd';
                     }
                     
-                } else if (s == 0 || i == 0 || s == 10 || i == 10) {
+                } else if (s == 0 || i == 0 || s == ROOMWIDTH-1 || i == ROOMHEIGHT-1) {
                     
                     tempLayout[i][s] = 'w';
                 
+                } else if(( i == (ROOMHEIGHT-1)/2) && (s == (ROOMWIDTH-1)/2) && (type == "o")) {
+                      
+                    tempLayout[i][s] = 's';
+                    
+                }  else if(( i == (ROOMHEIGHT-1)/2) && (s == (ROOMWIDTH-1)/2) && (type == "x")) {
+                    
+                    tempLayout[i][s] = 'e';
+                    
                 } else {
                     
                     tempLayout[i][s] = '-';

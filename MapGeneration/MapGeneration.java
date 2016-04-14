@@ -4,6 +4,7 @@
  */
 package MapGeneration;
 
+
 import java.io.FileNotFoundException;
 import java.util.*;
 
@@ -22,21 +23,7 @@ public class MapGeneration {
     	int maxRooms = 20;
     	
         Room floor[][] = generateMap(maxRooms, size);
-
-//        for (int i = 0; i < size; i++) {
-//
-//            for (int s = 0; s < size; s++) {
-//                if (map[i][s] == null) {
-//                    System.out.print("-----");
-//                } else {
-//                    System.out.print(map[i][s]);
-//                }
-//
-//            }
-//
-//            System.out.println("");
-//
-//        }
+        
     }
 
     public static Room[][] generateMap(int maxRooms, int size) throws FileNotFoundException {

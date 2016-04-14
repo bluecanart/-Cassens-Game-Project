@@ -25,7 +25,8 @@ public class Game
     private Hero hero;
     private long seed;
     int depth = 1;
-    static final int ROOMSIZE = 11;
+    static final int ROOMWIDTH = 15;
+    static final int ROOMHEIGHT = 9;
     private final int ROOMS = 15;
     final int FLOORSIZE = 8;
 
@@ -39,7 +40,7 @@ public class Game
         floor = new Floor(ROOMS, FLOORSIZE, seed, depth);
         frame = new GameFrame();
         frame.addWindowListener(frame);
-        map = new Map(floor.getCurrentRoom(), ROOMSIZE);
+        map = new Map(floor.getCurrentRoom(), ROOMWIDTH, ROOMHEIGHT);
         canvas = new GameCanvas(this);
         frame.add(canvas);
         frame.pack();
@@ -79,15 +80,15 @@ public class Game
                 //do nothing
             } else {
                 if(isExit(hero.getXPos(), hero.getYPos() - hero.getSpeed(), 'n') == 't') {
-                    hero.incrementYPos(Block.HEIGHT*(ROOMSIZE-3));
-                    hero.setXPos(GameCanvas.IMAGE_WIDTH/2);
+                    hero.incrementYPos(Block.HEIGHT*(ROOMHEIGHT-3));
+                    hero.setXPos(GameCanvas.IMAGE_WIDTH/2-hero.getHeroImage().getWidth()/2);
                     floor.RoomUp();
                     map.updateMap(floor.getCurrentRoom());
                     canvas.generateBackground();
                     canvas.generateMap();
                 } else if (isExit(hero.getXPos(), hero.getYPos() - hero.getSpeed(), 'n') == 'e') {
-                    hero.setXPos(GameCanvas.IMAGE_WIDTH/2);
-                    hero.setYPos(GameCanvas.IMAGE_HEIGHT/2);
+                    hero.setXPos(GameCanvas.IMAGE_WIDTH/2-hero.getHeroImage().getWidth()/2);
+                    hero.setYPos(GameCanvas.IMAGE_HEIGHT/2-hero.getHeroImage().getHeight()/2);
                     depth += 1;
                     floor = new Floor(ROOMS, FLOORSIZE, seed, depth);
                     map.updateMap(floor.getCurrentRoom());
@@ -105,15 +106,15 @@ public class Game
                 //do nothing
             } else {
                 if(isExit(hero.getXPos(), hero.getYPos() + hero.getSpeed(), 's') == 't') {
-                    hero.incrementYPos(-Block.HEIGHT*(ROOMSIZE-3));
-                    hero.setXPos(GameCanvas.IMAGE_WIDTH/2);
+                    hero.incrementYPos(-Block.HEIGHT*(ROOMHEIGHT-3));
+                    hero.setXPos(GameCanvas.IMAGE_WIDTH/2-hero.getHeroImage().getWidth()/2);
                     floor.RoomDown();
                     map.updateMap(floor.getCurrentRoom());
                     canvas.generateBackground();
                     canvas.generateMap();
                 } else if (isExit(hero.getXPos(), hero.getYPos() + hero.getSpeed(), 's') == 'e') {
-                    hero.setXPos(GameCanvas.IMAGE_WIDTH/2);
-                    hero.setYPos(GameCanvas.IMAGE_HEIGHT/2);
+                    hero.setXPos(GameCanvas.IMAGE_WIDTH/2-hero.getHeroImage().getWidth()/2);
+                    hero.setYPos(GameCanvas.IMAGE_HEIGHT/2-hero.getHeroImage().getHeight()/2);
                     depth += 1;
                     floor = new Floor(ROOMS, FLOORSIZE, seed, depth);
                     map.updateMap(floor.getCurrentRoom());
@@ -131,15 +132,15 @@ public class Game
                 //do nothing
             } else {
                 if(isExit(hero.getXPos() - hero.getSpeed(), hero.getYPos(), 'w') == 't') {
-                    hero.incrementXPos(Block.WIDTH*(ROOMSIZE-3));
-                    hero.setYPos(GameCanvas.IMAGE_HEIGHT/2);
+                    hero.incrementXPos(Block.WIDTH*(ROOMWIDTH-3));
+                    hero.setYPos(GameCanvas.IMAGE_HEIGHT/2-hero.getHeroImage().getHeight()/2);
                     floor.RoomLeft();
                     map.updateMap(floor.getCurrentRoom());
                     canvas.generateBackground();
                     canvas.generateMap();
                 } else if (isExit(hero.getXPos() - hero.getSpeed(), hero.getYPos(), 'w') == 'e') {
-                    hero.setXPos(GameCanvas.IMAGE_WIDTH/2);
-                    hero.setYPos(GameCanvas.IMAGE_HEIGHT/2);
+                    hero.setXPos(GameCanvas.IMAGE_WIDTH/2-hero.getHeroImage().getWidth()/2);
+                    hero.setYPos(GameCanvas.IMAGE_HEIGHT/2-hero.getHeroImage().getHeight()/2);
                     depth += 1;
                     floor = new Floor(ROOMS, FLOORSIZE, seed, depth);
                     map.updateMap(floor.getCurrentRoom());
@@ -159,15 +160,15 @@ public class Game
                 //do nothing
             } else {
                 if(isExit(hero.getXPos() + hero.getSpeed(), hero.getYPos(), 'e') == 't') {
-                    hero.incrementXPos(-Block.WIDTH*(ROOMSIZE-3));
-                    hero.setYPos(GameCanvas.IMAGE_HEIGHT/2);
+                    hero.incrementXPos(-Block.WIDTH*(ROOMWIDTH-3));
+                    hero.setYPos(GameCanvas.IMAGE_HEIGHT/2-hero.getHeroImage().getHeight()/2);
                     floor.RoomRight();
                     map.updateMap(floor.getCurrentRoom());
                     canvas.generateBackground();
                     canvas.generateMap();
                 } else if (isExit(hero.getXPos() + hero.getSpeed(), hero.getYPos(), 'e') == 'e') {
-                    hero.setXPos(GameCanvas.IMAGE_WIDTH/2);
-                    hero.setYPos(GameCanvas.IMAGE_HEIGHT/2);
+                    hero.setXPos(GameCanvas.IMAGE_WIDTH/2-hero.getHeroImage().getWidth()/2);
+                    hero.setYPos(GameCanvas.IMAGE_HEIGHT/2-hero.getHeroImage().getHeight()/2);
                     depth += 1;
                     floor = new Floor(ROOMS, FLOORSIZE, seed, depth);
                     map.updateMap(floor.getCurrentRoom());

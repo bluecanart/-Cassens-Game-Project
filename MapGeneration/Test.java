@@ -39,6 +39,9 @@ public class Test {
 }
 
 class MyPanel extends JPanel {
+    
+    final int ROOMWIDTH = 15;
+    final int ROOMHEIGHT = 9;
 
     public MyPanel() {
         setBorder(BorderFactory.createLineBorder(Color.black));
@@ -94,16 +97,16 @@ class MyPanel extends JPanel {
             
                     if (floor[i][s] == null) {
                         g.setColor(Color.WHITE);
-                        g.fillRect(s*55, i*55, 55, 55);
+                        g.fillRect(s*ROOMWIDTH*5, i*ROOMHEIGHT*5, ROOMWIDTH*5, ROOMHEIGHT*5);
                     } else {
                         
-                        for (int x = 0; x < 11; x++) {
+                        for (int x = 0; x < ROOMHEIGHT; x++) {
                             
-                            for(int y = 0; y < 11; y++) {
+                            for(int y = 0; y < ROOMWIDTH; y++) {
                                 
                                 //System.out.println(floor[i][s].layout)
                                 g.setColor(myMap.get(floor[i][s].layout[x][y]));
-                                g.fillRect(s*55+(y)*5, i*55+(x)*5, 5, 5);
+                                g.fillRect(s*ROOMWIDTH*5+(y)*5, i*ROOMHEIGHT*5+(x)*5, 5, 5);
                                 
                             }
                             
