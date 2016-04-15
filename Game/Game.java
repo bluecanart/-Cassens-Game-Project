@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -29,6 +30,7 @@ public class Game
     static final int ROOMHEIGHT = 9;
     private final int ROOMS = 15;
     final int FLOORSIZE = 8;
+    private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
 
 
     public Game() throws FileNotFoundException
@@ -55,6 +57,7 @@ public class Game
         canvas.addMouseListener(input);
         canvas.addKeyListener(input);
         timer.start();
+        repopulateEnemies();
 
     }
 
@@ -65,15 +68,92 @@ public class Game
     {
         //update stuff
         updateHeroPos();
+        checkHeroDamage();
+        hero.decrementCooldowns();
         //draw stuff
+        if (hero.isDead()) {
+            System.out.println("You died!");
+            System.exit(0);
+        }
         canvas.render();
     }
 
+    public void repopulateEnemies() {
+        
+        enemies.removeAll(enemies);
+        
+        for (int i = 0; i < ROOMHEIGHT; i++) {
+            
+            for (int s = 0; s < ROOMWIDTH; s++) {
+                
+                switch(floor.getCurrentRoom().layout[i][s]) {
+                    
+                    case '1':
+                        enemies.add(new Enemy(Assets.enemyImage, s*Block.HEIGHT, (i)*Block.WIDTH));
+                        //System.out.println("Enemy Added");
+                        break;
+                    
+                }
+                
+            }
+            
+        }
+        
+    }
+    
+    public void checkHeroDamage() {
+        
+        boolean horizontalCollision = false;
+        boolean verticalCollision = false;
+        
+        if(hero.getInvulnerable() <= 0) {
+        
+            for(Enemy enemy: enemies) {
+
+                if((hero.getXPos() <= enemy.getXPos() + enemy.getHeroImage().getWidth() && hero.getXPos() >= enemy.getXPos()) || (hero.getXPos() + hero.getHeroImage().getWidth() <= enemy.getXPos() + enemy.getHeroImage().getWidth() && hero.getXPos() + hero.getHeroImage().getWidth() >= enemy.getXPos())) {
+
+                    horizontalCollision = true;
+
+                }
+
+                if((hero.getYPos() <= enemy.getYPos() + enemy.getHeroImage().getHeight() && hero.getYPos() >= enemy.getYPos()) || (hero.getYPos() + hero.getHeroImage().getHeight() <= enemy.getYPos() + enemy.getHeroImage().getHeight() && hero.getYPos() + hero.getHeroImage().getHeight() >= enemy.getYPos())) {
+
+                    verticalCollision = true;
+
+                }
+
+                if(horizontalCollision && verticalCollision) {
+
+                    //System.out.println("Collision");
+                    hero.takeDamage(10);
+                    break;
+
+                } else {
+
+                    horizontalCollision = false;
+                    verticalCollision = false;
+
+                }
+
+            }
+        
+        }
+        
+    }
+    
     //updates position of hero based on current state of the input
     //TODO: when hero collides, the hero should likely be placed next to the wall, rather than denied movement
     public void updateHeroPos() throws FileNotFoundException
     {
-
+        
+        if (input.isControlPressed()) {
+            
+            if(hero.canRoll()) {
+                hero.roll();
+            }
+            
+        }
+        
         if (input.isUpPressed())
         {
             if (heroCollides(hero.getXPos(), hero.getYPos() - hero.getSpeed())) {
@@ -84,6 +164,7 @@ public class Game
                     hero.setXPos(GameCanvas.IMAGE_WIDTH/2-hero.getHeroImage().getWidth()/2);
                     floor.RoomUp();
                     map.updateMap(floor.getCurrentRoom());
+                    repopulateEnemies();
                     canvas.generateBackground();
                     canvas.generateMap();
                 } else if (isExit(hero.getXPos(), hero.getYPos() - hero.getSpeed(), 'n') == 'e') {
@@ -92,6 +173,7 @@ public class Game
                     depth += 1;
                     floor = new Floor(ROOMS, FLOORSIZE, seed, depth);
                     map.updateMap(floor.getCurrentRoom());
+                    repopulateEnemies();
                     canvas.generateBackground();
                     canvas.generateMap();
                 } else {
@@ -110,6 +192,7 @@ public class Game
                     hero.setXPos(GameCanvas.IMAGE_WIDTH/2-hero.getHeroImage().getWidth()/2);
                     floor.RoomDown();
                     map.updateMap(floor.getCurrentRoom());
+                    repopulateEnemies();
                     canvas.generateBackground();
                     canvas.generateMap();
                 } else if (isExit(hero.getXPos(), hero.getYPos() + hero.getSpeed(), 's') == 'e') {
@@ -118,6 +201,7 @@ public class Game
                     depth += 1;
                     floor = new Floor(ROOMS, FLOORSIZE, seed, depth);
                     map.updateMap(floor.getCurrentRoom());
+                    repopulateEnemies();
                     canvas.generateBackground();
                     canvas.generateMap();
                 } else {
@@ -136,6 +220,7 @@ public class Game
                     hero.setYPos(GameCanvas.IMAGE_HEIGHT/2-hero.getHeroImage().getHeight()/2);
                     floor.RoomLeft();
                     map.updateMap(floor.getCurrentRoom());
+                    repopulateEnemies();
                     canvas.generateBackground();
                     canvas.generateMap();
                 } else if (isExit(hero.getXPos() - hero.getSpeed(), hero.getYPos(), 'w') == 'e') {
@@ -144,6 +229,7 @@ public class Game
                     depth += 1;
                     floor = new Floor(ROOMS, FLOORSIZE, seed, depth);
                     map.updateMap(floor.getCurrentRoom());
+                    repopulateEnemies();
                     canvas.generateBackground();
                     canvas.generateMap();
                 } else {
@@ -164,6 +250,7 @@ public class Game
                     hero.setYPos(GameCanvas.IMAGE_HEIGHT/2-hero.getHeroImage().getHeight()/2);
                     floor.RoomRight();
                     map.updateMap(floor.getCurrentRoom());
+                    repopulateEnemies();
                     canvas.generateBackground();
                     canvas.generateMap();
                 } else if (isExit(hero.getXPos() + hero.getSpeed(), hero.getYPos(), 'e') == 'e') {
@@ -172,6 +259,7 @@ public class Game
                     depth += 1;
                     floor = new Floor(ROOMS, FLOORSIZE, seed, depth);
                     map.updateMap(floor.getCurrentRoom());
+                    repopulateEnemies();
                     canvas.generateBackground();
                     canvas.generateMap();
                 } else {
@@ -179,6 +267,7 @@ public class Game
                 }
             }
         }
+        
     }
 
     public void setBlock(int x, int y, Block block)
@@ -251,6 +340,11 @@ public class Game
     public Hero getHero()
     {
         return hero;
+    }
+    
+    public ArrayList<Enemy> getEnemies()
+    {
+        return enemies;
     }
 
 

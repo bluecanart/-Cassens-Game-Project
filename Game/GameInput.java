@@ -15,16 +15,19 @@ public class GameInput implements KeyListener, MouseListener
     public static final int DOWN = KeyEvent.VK_S;
     public static final int LEFT = KeyEvent.VK_A;
     public static final int RIGHT = KeyEvent.VK_D;
+    public static final int CONTROL = KeyEvent.VK_CONTROL;
 
     protected boolean upKeyDown = false;
     protected boolean downKeyDown = false;
     protected boolean leftKeyDown = false;
     protected boolean rightKeyDown = false;
+    protected boolean controlKeyDown = false;
 
     protected boolean upButtonDown = false;
     protected boolean downButtonDown = false;
     protected boolean leftButtonDown = false;
     protected boolean rightButtonDown = false;
+    protected boolean controlButtonDown = false;
 
     private Game game;
     private Controller controller;
@@ -69,6 +72,11 @@ public class GameInput implements KeyListener, MouseListener
     {
         return (rightButtonDown || rightKeyDown);
     }
+    
+    public boolean isControlPressed()
+    {
+        return (controlButtonDown || controlKeyDown);
+    }
 
     @Override
     public void keyPressed(KeyEvent e)
@@ -89,6 +97,10 @@ public class GameInput implements KeyListener, MouseListener
 
             case RIGHT:
                 rightKeyDown = true;
+                break;
+                
+            case CONTROL:
+                controlKeyDown = true;
                 break;
 
         }
@@ -118,6 +130,10 @@ public class GameInput implements KeyListener, MouseListener
 
             case RIGHT:
                 rightKeyDown = false;
+                break;
+                
+            case CONTROL:
+                controlKeyDown = false;
                 break;
         }
 

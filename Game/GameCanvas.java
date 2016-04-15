@@ -126,12 +126,33 @@ public class GameCanvas extends Canvas
         canvasGraphics.drawImage(backGround, 0, 0, null);//draws image to screen
         
         //canvasGraphics.drawImage(game.getHero().getHeroImage(), game.getHero().getXPos(), game.getHero().getYPos(), game.getHero().getXPos() + Hero.IMAGE_WIDTH, game.getHero().getYPos() + Hero.IMAGE_HEIGHT, 0, 0, Hero.IMAGE_WIDTH, Hero.IMAGE_HEIGHT, null);
-        canvasGraphics.drawImage(game.getHero().getHeroImage(), game.getHero().getXPos(), game.getHero().getYPos(), null);
+        
+        for(Enemy enemy: game.getEnemies()) {
+            
+            canvasGraphics.drawImage(enemy.getHeroImage(), enemy.getXPos(), enemy.getYPos(), null);
+            
+        }
+        if(game.getHero().getInvulnerable() > 0) { //Change this later to have slight visual effect when invulnerable
+            canvasGraphics.drawImage(game.getHero().getHeroImage(), game.getHero().getXPos(), game.getHero().getYPos(), null);
+        } else {
+            canvasGraphics.drawImage(game.getHero().getHeroImage(), game.getHero().getXPos(), game.getHero().getYPos(), null);
+        }
+        
         canvasGraphics.drawImage(map, IMAGE_WIDTH - (ROOMWIDTH*game.FLOORSIZE) - 6 - 3, 3, null);//draws image to screen
         canvasGraphics.setColor(new Color(255, 255, 255, 150));
-        canvasGraphics.fillRect(4, 10, 90, 13);
+        canvasGraphics.fillRect(4, 10, 95, 13);
         canvasGraphics.setColor(Color.BLACK);
         canvasGraphics.drawString("Current Floor: " + game.depth, 6, 20);
+        canvasGraphics.setColor(Color.RED);
+        canvasGraphics.fillRect(3, IMAGE_HEIGHT - 20, 100, 10);
+        canvasGraphics.setColor(Color.GREEN);
+        canvasGraphics.fillRect(3, IMAGE_HEIGHT - 20, game.getHero().getHealthLeft(), 10);
+        canvasGraphics.setColor(new Color(255, 255, 255, 150));
+        canvasGraphics.fillRect(IMAGE_WIDTH - 107, IMAGE_HEIGHT - 22, 104, 13);
+        canvasGraphics.setColor(new Color(140, 140, 140, 150));
+        canvasGraphics.fillRect(IMAGE_WIDTH - 107, IMAGE_HEIGHT - 22, (int)(1.0*104*game.getHero().getRollCooldown()/100.0), 13);
+        canvasGraphics.setColor(Color.BLACK);
+        canvasGraphics.drawString("Roll Cooldown: " + game.getHero().getRollCooldown(), IMAGE_WIDTH - 105, IMAGE_HEIGHT - 11);
         bufferStrategy.show();
         canvasGraphics.dispose();
 
