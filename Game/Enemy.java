@@ -1,4 +1,4 @@
-package game;
+package Game;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -19,9 +19,9 @@ public class Enemy
     private int[] RGBArray;
     private BufferedImage enemyImage;
 
-    public Enemy(BufferedImage enemyImage, int xPos, int yPos)
+    public Enemy(int xPos, int yPos)
     {
-        this.enemyImage = enemyImage;
+        this.enemyImage = Assets.enemyImage;
         //initial position
         this.xPos = xPos;
         this.yPos = yPos;

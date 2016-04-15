@@ -1,4 +1,4 @@
-package game;
+package Game;
 
 import MapGeneration.Floor;
 import javax.imageio.ImageIO;
@@ -16,6 +16,8 @@ import java.util.Random;
  */
 public class Game
 {
+	//private int count = 5;
+	
     private GameFrame frame;
     private GameCanvas canvas;
     private GameTimer timer;
@@ -50,7 +52,7 @@ public class Game
         canvas.bufferStrategy = canvas.getBufferStrategy();
 
         timer = new GameTimer(this);
-        hero = new Hero(Assets.heroImage);
+        hero = new Hero(GameCanvas.IMAGE_WIDTH/2-Assets.heroImage.getWidth()/2, GameCanvas.IMAGE_HEIGHT/2-Assets.heroImage.getHeight()/2);
 
         frame.setVisible(true);
         input = new GameInput(this);
@@ -62,11 +64,23 @@ public class Game
     }
 
 
-
+    int oldY = 0;
 
     public void tick() throws FileNotFoundException
     {
+    	
         //update stuff
+//    	if (count == 5) {
+//    		input.spoof();
+//    		oldY = hero.getYPos();
+//    		//count = 15;
+//    	} else if (count == 0){
+//    		input.unspoof();
+//    		if (hero.getYPos() != oldY - 4 * 5) {
+//    			System.out.println("Incorrect Y");
+//    		}
+//    	}
+//    	count--;
         updateHeroPos();
         checkHeroDamage();
         hero.decrementCooldowns();
@@ -89,7 +103,7 @@ public class Game
                 switch(floor.getCurrentRoom().layout[i][s]) {
                     
                     case '1':
-                        enemies.add(new Enemy(Assets.enemyImage, s*Block.HEIGHT, (i)*Block.WIDTH));
+                        enemies.add(new Enemy((s)*Block.HEIGHT, (i)*Block.WIDTH));
                         //System.out.println("Enemy Added");
                         break;
                     
@@ -103,35 +117,15 @@ public class Game
     
     public void checkHeroDamage() {
         
-        boolean horizontalCollision = false;
-        boolean verticalCollision = false;
-        
         if(hero.getInvulnerable() <= 0) {
         
             for(Enemy enemy: enemies) {
 
-                if((hero.getXPos() <= enemy.getXPos() + enemy.getHeroImage().getWidth() && hero.getXPos() >= enemy.getXPos()) || (hero.getXPos() + hero.getHeroImage().getWidth() <= enemy.getXPos() + enemy.getHeroImage().getWidth() && hero.getXPos() + hero.getHeroImage().getWidth() >= enemy.getXPos())) {
-
-                    horizontalCollision = true;
-
-                }
-
-                if((hero.getYPos() <= enemy.getYPos() + enemy.getHeroImage().getHeight() && hero.getYPos() >= enemy.getYPos()) || (hero.getYPos() + hero.getHeroImage().getHeight() <= enemy.getYPos() + enemy.getHeroImage().getHeight() && hero.getYPos() + hero.getHeroImage().getHeight() >= enemy.getYPos())) {
-
-                    verticalCollision = true;
-
-                }
-
-                if(horizontalCollision && verticalCollision) {
+                if(checkEnemyCollision(hero, enemy)) {
 
                     //System.out.println("Collision");
                     hero.takeDamage(10);
                     break;
-
-                } else {
-
-                    horizontalCollision = false;
-                    verticalCollision = false;
 
                 }
 
@@ -139,6 +133,27 @@ public class Game
         
         }
         
+    }
+    
+    public static boolean checkEnemyCollision(Hero hero, Enemy enemy) {
+    	
+    	boolean horizontalCollision = false;
+    	boolean verticalCollision = true;
+    	
+    	if((hero.getXPos() < enemy.getXPos() + enemy.getHeroImage().getWidth() && hero.getXPos() > enemy.getXPos()) || (hero.getXPos() + hero.getHeroImage().getWidth() < enemy.getXPos() + enemy.getHeroImage().getWidth() && hero.getXPos() + hero.getHeroImage().getWidth() > enemy.getXPos())) {
+
+            horizontalCollision = true;
+
+        }
+
+        if((hero.getYPos() < enemy.getYPos() + enemy.getHeroImage().getHeight() && hero.getYPos() > enemy.getYPos()) || (hero.getYPos() + hero.getHeroImage().getHeight() < enemy.getYPos() + enemy.getHeroImage().getHeight() && hero.getYPos() + hero.getHeroImage().getHeight() > enemy.getYPos())) {
+
+            verticalCollision = true;
+
+        }
+        
+        return (horizontalCollision && verticalCollision);
+    	
     }
     
     //updates position of hero based on current state of the input

@@ -1,4 +1,4 @@
-package game;
+package Game;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -23,13 +23,13 @@ public class Hero
 
     private BufferedImage heroImage;
 
-    public Hero(BufferedImage heroImage)
+    public Hero(int xPos, int yPos)
     {
-        this.heroImage = heroImage;
+        this.heroImage = Assets.heroImage;
         
         //initial position
-        xPos = GameCanvas.IMAGE_WIDTH/2-heroImage.getWidth()/2;
-        yPos = GameCanvas.IMAGE_HEIGHT/2-heroImage.getHeight()/2;
+        this.xPos = xPos;
+        this.yPos = yPos; 
         this.speed = 4;
     }
 

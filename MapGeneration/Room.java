@@ -18,6 +18,7 @@ public class Room {
     
     public char[][] layout;
     public char type;
+    public String rooms;
     
     final int ROOMWIDTH = 15;
     final int ROOMHEIGHT = 9;
@@ -26,6 +27,7 @@ public class Room {
         
         layout = new char[ROOMHEIGHT][ROOMWIDTH];
         type = ID.charAt(0);
+        rooms = ID.substring(1, 4);
         File folder = new File("./src/Rooms/" + ID.substring(0,1) + "/" + ID.substring(1,5));
         File[] listOfFiles = folder.listFiles();
         Random myRand = new Random(seed);

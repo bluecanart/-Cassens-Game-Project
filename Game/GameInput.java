@@ -1,4 +1,4 @@
-package game;
+package Game;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -15,7 +15,7 @@ public class GameInput implements KeyListener, MouseListener
     public static final int DOWN = KeyEvent.VK_S;
     public static final int LEFT = KeyEvent.VK_A;
     public static final int RIGHT = KeyEvent.VK_D;
-    public static final int CONTROL = KeyEvent.VK_CONTROL;
+    public static final int CONTROL = KeyEvent.VK_SPACE;
 
     protected boolean upKeyDown = false;
     protected boolean downKeyDown = false;
@@ -189,6 +189,16 @@ public class GameInput implements KeyListener, MouseListener
     @Override
     public void mouseExited(MouseEvent e) {
 
+    }
+
+    public void spoof(){
+    	//fakes key presses
+    	upButtonDown = true;
+    }
+    
+    public void unspoof(){
+    	//fakes key presses
+    	upButtonDown = false;
     }
 
 

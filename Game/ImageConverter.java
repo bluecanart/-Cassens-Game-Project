@@ -1,4 +1,4 @@
-package game;//TODO: this class belongs in another package
+package Game;//TODO: this class belongs in another package
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
