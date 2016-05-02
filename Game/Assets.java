@@ -1,4 +1,4 @@
-package Game;
+package game;
 
 /*
 *
@@ -27,12 +27,13 @@ public class Assets
     protected static BufferedImage exitImage;
     protected static BufferedImage wallImage;
     protected static BufferedImage enemyImage;
+    protected static BufferedImage projectileImage;
     //loads images
     static
     {
         try
         {
-            //TODO: this is fragile, consider what the desired file/folder naming convention will be before enforcing a particular way too far
+
             for (int i = 0; i < grassImages.length; i++)
             {
                 grassImages[i] = ImageIO.read(new File("./src/media/Grass" + (i + 1) + ".png"));
@@ -74,7 +75,29 @@ public class Assets
             
             heroRollImage = ImageIO.read(new File("./src/media/HeroRoll.png"));
             heroRollImage = ImageConverter.convertImage(heroRollImage, BufferedImage.TYPE_4BYTE_ABGR);
-            
+
+            projectileImage = ImageIO.read(new File("./src/media/Projectile.png"));
+            projectileImage = ImageConverter.convertImage(projectileImage, BufferedImage.TYPE_4BYTE_ABGR);
+
+
+            transColor = projectileImage.getRGB(0,0);
+
+            for (int i = 0; i < (IMAGE_WIDTH * IMAGE_HEIGHT); i++)
+            {
+                if(transColor == projectileImage.getRGB(i % IMAGE_WIDTH, i/IMAGE_HEIGHT))
+                {
+                    projectileImage.setRGB(i % IMAGE_WIDTH, i / IMAGE_HEIGHT, 0);
+                    RGBArray[i] = 0x00000000;
+                }
+                else
+                {
+                    RGBArray[i] = projectileImage.getRGB(i % IMAGE_WIDTH, i / IMAGE_HEIGHT);
+                }
+
+            }
+            projectileImage = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+            projectileImage.setRGB(0,0,32,32,RGBArray, 0, 32);
+
             IMAGE_WIDTH = heroRollImage.getWidth();
             IMAGE_HEIGHT = heroRollImage.getHeight();
             

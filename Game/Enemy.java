@@ -1,4 +1,4 @@
-package Game;
+package game;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -15,17 +15,26 @@ public class Enemy
     private int yPos;
     private int speed;//pixels moved per tick
     private int health;
+    private int maxHealth;
+    protected boolean isAlive;
+    int fireCD;
+    int currfireCD;
 
     private int[] RGBArray;
     private BufferedImage enemyImage;
 
-    public Enemy(int xPos, int yPos)
+    public Enemy(BufferedImage enemyImage, int xPos, int yPos)
     {
-        this.enemyImage = Assets.enemyImage;
+        this.enemyImage = enemyImage;
         //initial position
         this.xPos = xPos;
         this.yPos = yPos;
         this.speed = 4;
+        health = 20;
+        maxHealth = 20;
+        isAlive = true;
+        fireCD = 40;
+        currfireCD = 40;
     }
 
 
@@ -38,6 +47,12 @@ public class Enemy
     public void takeDamage(int amount) {
         
         health -= amount;
+        if (health <= 0)
+        {
+            health = 0;
+            isAlive = false;
+
+        }
         
     }
     
@@ -45,6 +60,10 @@ public class Enemy
         
         return health;
         
+    }
+    public int getMaxHealth()
+    {
+        return maxHealth;
     }
     
     public void setXPos(int newPos) 

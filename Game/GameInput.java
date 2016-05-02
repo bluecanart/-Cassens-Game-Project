@@ -1,4 +1,4 @@
-package Game;
+package game;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -15,21 +15,23 @@ public class GameInput implements KeyListener, MouseListener
     public static final int DOWN = KeyEvent.VK_S;
     public static final int LEFT = KeyEvent.VK_A;
     public static final int RIGHT = KeyEvent.VK_D;
-    public static final int CONTROL = KeyEvent.VK_SPACE;
+    public static final int CONTROL = KeyEvent.VK_CONTROL;
+    public static final int FIRE = MouseEvent.BUTTON1;
 
     protected boolean upKeyDown = false;
     protected boolean downKeyDown = false;
     protected boolean leftKeyDown = false;
     protected boolean rightKeyDown = false;
     protected boolean controlKeyDown = false;
+    protected boolean fireKeyDown = false;
 
     protected boolean upButtonDown = false;
     protected boolean downButtonDown = false;
     protected boolean leftButtonDown = false;
     protected boolean rightButtonDown = false;
-    protected boolean controlButtonDown = false;
+    protected boolean aButtonDown = false;
 
-    private Game game;
+    protected Game game;
     private Controller controller;
     private Timer controllerPoller;
     public static final int POLL_RATE = 5;//time in milliseconds between controller polls
@@ -75,7 +77,12 @@ public class GameInput implements KeyListener, MouseListener
     
     public boolean isControlPressed()
     {
-        return (controlButtonDown || controlKeyDown);
+        return (aButtonDown || controlKeyDown);
+    }
+
+    public void controllerFire(double dir)
+    {
+        game.fire(dir);
     }
 
     @Override
@@ -135,6 +142,10 @@ public class GameInput implements KeyListener, MouseListener
             case CONTROL:
                 controlKeyDown = false;
                 break;
+
+            case FIRE:
+                fireKeyDown = false;
+                break;
         }
 
     }
@@ -142,11 +153,25 @@ public class GameInput implements KeyListener, MouseListener
     @Override
     public void mouseClicked(MouseEvent e)
     {
+
+
     }
 
     @Override
     public void mousePressed(MouseEvent e)
     {
+
+        switch(e.getButton()) {
+            case FIRE:
+                //fireKeyDown = true;
+                double dir = (Math.atan2((e.getY() -  (game.getHero().getYPos() + 16) * 2) , (e.getX() -  (game.getHero().getXPos() + 16) * 2)));//s Magic numbers indicate scale factor, and center of hero
+                game.fire(dir);
+                if (Main.debugMode)
+                {
+                    System.out.println("Projectile Fired from Mouse!\nDirection :" + Math.toDegrees(dir) + "\nMouse X: " + e.getX() + "\nMouseY: " + e.getY() + "\nHeroX: " + game.getHero().getXPos() + "\nHeroY: " + game.getHero().getYPos() + "\n");
+                }
+                break;
+        }
 //        Map gameMap = game.getMap();
 //
 //        if ((e.getX() >= 0 && e.getX()< GameCanvas.IMAGE_WIDTH) && (e.getY() >= 0 && e.getY()< GameCanvas.IMAGE_HEIGHT))
@@ -179,6 +204,14 @@ public class GameInput implements KeyListener, MouseListener
     @Override
     public void mouseReleased(MouseEvent e) {
 
+        /*
+        switch(e.getButton()) {
+            case FIRE:
+                fireKeyDown = false;
+                break;
+        }
+        */
+
     }
 
     @Override
@@ -189,16 +222,6 @@ public class GameInput implements KeyListener, MouseListener
     @Override
     public void mouseExited(MouseEvent e) {
 
-    }
-
-    public void spoof(){
-    	//fakes key presses
-    	upButtonDown = true;
-    }
-    
-    public void unspoof(){
-    	//fakes key presses
-    	upButtonDown = false;
     }
 
 

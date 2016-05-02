@@ -1,8 +1,9 @@
-package Game;
+package game;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -14,17 +15,23 @@ import java.util.Random;
 public class GameCanvas extends Canvas
 {
 
+    public Projectile projectile;
     public BufferStrategy bufferStrategy;
     private BufferedImage backGround;
     private BufferedImage map;
+    public static final int SCALE_FACTOR = 2;
 
-    //block size = 30x30 pixels
+    //block size = 32x32 pixels
     public static final int ROOMWIDTH = 15;
     public static final int ROOMHEIGHT = 9;
     public static final int IMAGE_WIDTH = ROOMWIDTH * Block.WIDTH;
     public static final int IMAGE_HEIGHT = ROOMHEIGHT * Block.HEIGHT;
     public static int BLOCKS_WIDE = ROOMWIDTH;
     public static int BLOCKS_TALL = ROOMHEIGHT;
+    private Color rColor = new Color(255, 255, 255, 150);
+    private Color rCoolColor = new Color(140, 140, 140, 150);
+    private Color textColor = new Color(255, 255, 255, 150);
+
 
     Game game;
 
@@ -34,7 +41,7 @@ public class GameCanvas extends Canvas
         backGround = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         map = new BufferedImage(ROOMWIDTH * game.FLOORSIZE + 6, ROOMHEIGHT * game.FLOORSIZE + 6, BufferedImage.TYPE_INT_ARGB);
         setBackground(Color.BLACK);//TODO: this prevented flickering if window was resized to be greater than the drawable area
-        setPreferredSize(new Dimension(IMAGE_WIDTH, IMAGE_HEIGHT));
+        setPreferredSize(new Dimension(IMAGE_WIDTH * SCALE_FACTOR, IMAGE_HEIGHT * SCALE_FACTOR));
         this.game = game;
         generateBackground();
         generateMap();
@@ -123,13 +130,24 @@ public class GameCanvas extends Canvas
     public void render()
     {
         Graphics2D canvasGraphics = (Graphics2D) bufferStrategy.getDrawGraphics();
+        canvasGraphics.scale(2,2);
         canvasGraphics.drawImage(backGround, 0, 0, null);//draws image to screen
         
         //canvasGraphics.drawImage(game.getHero().getHeroImage(), game.getHero().getXPos(), game.getHero().getYPos(), game.getHero().getXPos() + Hero.IMAGE_WIDTH, game.getHero().getYPos() + Hero.IMAGE_HEIGHT, 0, 0, Hero.IMAGE_WIDTH, Hero.IMAGE_HEIGHT, null);
         
         for(Enemy enemy: game.getEnemies()) {
-            
-            canvasGraphics.drawImage(enemy.getHeroImage(), enemy.getXPos(), enemy.getYPos(), null);
+
+            if (enemy.isAlive)
+            {
+                canvasGraphics.drawImage(enemy.getHeroImage(), enemy.getXPos(), enemy.getYPos(), null);
+                Color prevColor = canvasGraphics.getColor();
+                canvasGraphics.setColor(Color.RED);
+                canvasGraphics.fillRect(enemy.getXPos(), enemy.getYPos(), 32, 4);
+                canvasGraphics.setColor(Color.GREEN);
+                canvasGraphics.fillRect(enemy.getXPos(), enemy.getYPos(), (int) (enemy.getHealthLeft()/(double) enemy.getMaxHealth() * 32), 4);
+                canvasGraphics.setColor(prevColor);
+            }
+
             
         }
         if(game.getHero().getInvulnerable() > 0) { //Change this later to have slight visual effect when invulnerable
@@ -139,7 +157,7 @@ public class GameCanvas extends Canvas
         }
         
         canvasGraphics.drawImage(map, IMAGE_WIDTH - (ROOMWIDTH*game.FLOORSIZE) - 6 - 3, 3, null);//draws image to screen
-        canvasGraphics.setColor(new Color(255, 255, 255, 150));
+        canvasGraphics.setColor(textColor);
         canvasGraphics.fillRect(4, 10, 95, 13);
         canvasGraphics.setColor(Color.BLACK);
         canvasGraphics.drawString("Current Floor: " + game.depth, 6, 20);
@@ -147,15 +165,41 @@ public class GameCanvas extends Canvas
         canvasGraphics.fillRect(3, IMAGE_HEIGHT - 20, 100, 10);
         canvasGraphics.setColor(Color.GREEN);
         canvasGraphics.fillRect(3, IMAGE_HEIGHT - 20, game.getHero().getHealthLeft(), 10);
-        canvasGraphics.setColor(new Color(255, 255, 255, 150));
+        canvasGraphics.setColor(rColor);
         canvasGraphics.fillRect(IMAGE_WIDTH - 107, IMAGE_HEIGHT - 22, 104, 13);
-        canvasGraphics.setColor(new Color(140, 140, 140, 150));
+        canvasGraphics.setColor(rCoolColor);
         canvasGraphics.fillRect(IMAGE_WIDTH - 107, IMAGE_HEIGHT - 22, (int)(1.0*104*game.getHero().getRollCooldown()/100.0), 13);
         canvasGraphics.setColor(Color.BLACK);
         canvasGraphics.drawString("Roll Cooldown: " + game.getHero().getRollCooldown(), IMAGE_WIDTH - 105, IMAGE_HEIGHT - 11);
+        if(Main.debugMode)
+        {
+            debugRender(canvasGraphics);
+        }
+        for (Projectile projectile: game.projectiles)
+        {
+            if (projectile != null)
+            {
+                canvasGraphics.drawImage(projectile.projImage, (int) projectile.x, (int) projectile.y, null);
+            }
+        }
         bufferStrategy.show();
         canvasGraphics.dispose();
 
+
+
+    }
+
+
+    private void debugRender(Graphics2D canvasGraphics)
+    {
+        //renders an outline of each block that the hero at least partially occupies
+        int heroX = game.getHero().getXPos();
+        int heroY = game.getHero().getYPos();
+        canvasGraphics.setColor(Color.red);
+        canvasGraphics.drawRect(((heroX)/Block.WIDTH * Block.WIDTH), ((heroY)/Block.HEIGHT * Block.HEIGHT), Block.WIDTH, Block.HEIGHT);//NW Block
+        canvasGraphics.drawRect((((heroX + (Block.WIDTH - 1))/Block.WIDTH) * Block.WIDTH), ((heroY)/Block.HEIGHT * Block.HEIGHT), Block.WIDTH, Block.HEIGHT);//NE Block
+        canvasGraphics.drawRect(((heroX)/Block.WIDTH * Block.WIDTH), ((heroY + (Block.HEIGHT - 1))/Block.HEIGHT) * Block.HEIGHT, Block.WIDTH, Block.HEIGHT);//SW Block
+        canvasGraphics.drawRect(((heroX + (Block.WIDTH - 1))/Block.WIDTH) * Block.WIDTH, ((heroY + (Block.HEIGHT - 1))/Block.HEIGHT) *Block.HEIGHT, Block.WIDTH, Block.HEIGHT);//SE Block
     }
 }
 

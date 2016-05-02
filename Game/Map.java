@@ -1,4 +1,4 @@
-package Game;
+package game;
 
 import MapGeneration.Room;
 import java.awt.*;

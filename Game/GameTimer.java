@@ -1,4 +1,4 @@
-package Game;
+package game;
 
 import java.io.FileNotFoundException;
 import java.util.Timer;
@@ -27,11 +27,9 @@ public class GameTimer extends TimerTask
     @Override
     public void run()//method is called repeatedly by timer
     {
-        try {
-            game.tick();
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(GameTimer.class.getName()).log(Level.SEVERE, null, ex);
-        }
+
+        game.tick();
+
     }
 
 

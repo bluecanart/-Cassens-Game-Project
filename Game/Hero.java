@@ -1,4 +1,4 @@
-package Game;
+package game;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -23,13 +23,13 @@ public class Hero
 
     private BufferedImage heroImage;
 
-    public Hero(int xPos, int yPos)
+    public Hero(BufferedImage heroImage)
     {
-        this.heroImage = Assets.heroImage;
+        this.heroImage = heroImage;
         
         //initial position
-        this.xPos = xPos;
-        this.yPos = yPos; 
+        xPos = GameCanvas.IMAGE_WIDTH/2-heroImage.getWidth()/2;
+        yPos = GameCanvas.IMAGE_HEIGHT/2-heroImage.getHeight()/2;
         this.speed = 4;
     }
 
@@ -90,15 +90,17 @@ public class Hero
         }
         
         if(rollCooldown == 85) {
+
             
             rolling = false;
             speed = 4;
             heroImage = Assets.heroImage;
             
         }
-        
+
+
         if (invulnerable > 0) {
-            
+
             invulnerable -= 1;
             if (invulnerable <= 0) {
                 

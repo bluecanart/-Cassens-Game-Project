@@ -1,4 +1,4 @@
-package Game;
+package game;
 
 import MapGeneration.Floor;
 import javax.imageio.ImageIO;
@@ -16,12 +16,10 @@ import java.util.Random;
  */
 public class Game
 {
-	//private int count = 5;
-	
     private GameFrame frame;
     private GameCanvas canvas;
     private GameTimer timer;
-    private Map map;
+    protected Map map;
     private GameInput input;
 
     Floor floor;
@@ -33,9 +31,13 @@ public class Game
     private final int ROOMS = 15;
     final int FLOORSIZE = 8;
     private ArrayList<Enemy> enemies = new ArrayList<Enemy>();
+    protected Projectile[] projectiles = new Projectile[500];  //buffer for projectiles
+    private int currProjIndex = 0;
+    public static final int FIRE_COOLDOWN = 15;
+    protected int currFireCooldown;
 
 
-    public Game() throws FileNotFoundException
+    public Game()
     {
         //initializes frame and canvas\
         Random myRand = new Random();
@@ -52,7 +54,7 @@ public class Game
         canvas.bufferStrategy = canvas.getBufferStrategy();
 
         timer = new GameTimer(this);
-        hero = new Hero(GameCanvas.IMAGE_WIDTH/2-Assets.heroImage.getWidth()/2, GameCanvas.IMAGE_HEIGHT/2-Assets.heroImage.getHeight()/2);
+        hero = new Hero(Assets.heroImage);
 
         frame.setVisible(true);
         input = new GameInput(this);
@@ -60,35 +62,85 @@ public class Game
         canvas.addKeyListener(input);
         timer.start();
         repopulateEnemies();
+        currFireCooldown = 0;
+
 
     }
 
 
-    int oldY = 0;
 
-    public void tick() throws FileNotFoundException
+
+    public void tick()
     {
-    	
         //update stuff
-//    	if (count == 5) {
-//    		input.spoof();
-//    		oldY = hero.getYPos();
-//    		//count = 15;
-//    	} else if (count == 0){
-//    		input.unspoof();
-//    		if (hero.getYPos() != oldY - 4 * 5) {
-//    			System.out.println("Incorrect Y");
-//    		}
-//    	}
-//    	count--;
         updateHeroPos();
         checkHeroDamage();
         hero.decrementCooldowns();
+        if (currFireCooldown > 0)
+        {
+            currFireCooldown  -= 1;
+        }
+        for (Enemy enemy: enemies)
+        {
+            enemy.currfireCD -= 1;
+            if (enemy.currfireCD <= 0)
+            {
+                enemy.currfireCD = enemy.fireCD;
+                double dir = (Math.atan2(((hero.getYPos() + 16) -  (enemy.getYPos())) , ((hero.getXPos() + 16) -  (enemy.getXPos()))));
+                projectiles[currProjIndex] = new Projectile(dir, 3, 5, false, enemy.getXPos(), enemy.getYPos(), this);
+                currProjIndex = (currProjIndex + 1) % projectiles.length;
+
+            }
+        }
         //draw stuff
         if (hero.isDead()) {
             System.out.println("You died!");
             System.exit(0);
         }
+
+
+        //checks projectile collisions
+        for (int i = 0; i < projectiles.length; i++)
+        {
+            if (projectiles[i] != null)
+            {
+                projectiles[i].step();
+
+                for (Enemy enemy : enemies)
+                {
+                    if (projectiles[i].friendly && (Math.abs(projectiles[i].x - enemy.getXPos()) <= 16) && (Math.abs((projectiles[i].y - enemy.getYPos())) <= 16))
+                    {
+                        enemy.takeDamage(projectiles[i].damage);
+                        projectiles[i] = null;
+                        if(!enemy.isAlive)
+                        {
+                            enemies.remove(enemy);
+                        }
+                        break;
+                    }
+
+                }
+
+                if(projectiles[i] != null && !projectiles[i].friendly && (Math.abs(projectiles[i].x - hero.getXPos()) <= 16) && (Math.abs((projectiles[i].y - hero.getYPos())) <= 16))
+                {
+                    hero.takeDamage((projectiles[i].damage));
+                    projectiles[i] = null;
+                }
+
+                }
+
+
+                if (projectiles[i] != null && projectiles[i].collides())
+            {
+                if (Main.debugMode)
+                {
+                    System.out.println("Projectile " + i + " Collided!");
+                }
+                projectiles[i] = null;
+            }
+
+        }
+
         canvas.render();
     }
 
@@ -103,7 +155,7 @@ public class Game
                 switch(floor.getCurrentRoom().layout[i][s]) {
                     
                     case '1':
-                        enemies.add(new Enemy((s)*Block.HEIGHT, (i)*Block.WIDTH));
+                        enemies.add(new Enemy(Assets.enemyImage, s*Block.HEIGHT, (i)*Block.WIDTH));
                         //System.out.println("Enemy Added");
                         break;
                     
@@ -117,15 +169,43 @@ public class Game
     
     public void checkHeroDamage() {
         
+        boolean horizontalCollision = false;
+        boolean verticalCollision = false;
+        
         if(hero.getInvulnerable() <= 0) {
         
             for(Enemy enemy: enemies) {
 
-                if(checkEnemyCollision(hero, enemy)) {
+                if((hero.getXPos() <= enemy.getXPos() + enemy.getHeroImage().getWidth() && hero.getXPos() >= enemy.getXPos()) || (hero.getXPos() + hero.getHeroImage().getWidth() <= enemy.getXPos() + enemy.getHeroImage().getWidth() && hero.getXPos() + hero.getHeroImage().getWidth() >= enemy.getXPos())) {
+
+                    horizontalCollision = true;
+                    if (Main.debugMode)
+                    {
+                        //System.out.println("horiz collisionw");
+                    }
+
+                }
+
+                if((hero.getYPos() <= enemy.getYPos() + enemy.getHeroImage().getHeight() && hero.getYPos() >= enemy.getYPos()) || (hero.getYPos() + hero.getHeroImage().getHeight() <= enemy.getYPos() + enemy.getHeroImage().getHeight() && hero.getYPos() + hero.getHeroImage().getHeight() >= enemy.getYPos())) {
+
+                    verticalCollision = true;
+                    if(Main.debugMode)
+                    {
+                        //System.out.println("Veritcal coll");
+                    }
+
+                }
+
+                if(horizontalCollision && verticalCollision) {
 
                     //System.out.println("Collision");
                     hero.takeDamage(10);
                     break;
+
+                } else {
+
+                    horizontalCollision = false;
+                    verticalCollision = false;
 
                 }
 
@@ -135,30 +215,9 @@ public class Game
         
     }
     
-    public static boolean checkEnemyCollision(Hero hero, Enemy enemy) {
-    	
-    	boolean horizontalCollision = false;
-    	boolean verticalCollision = true;
-    	
-    	if((hero.getXPos() < enemy.getXPos() + enemy.getHeroImage().getWidth() && hero.getXPos() > enemy.getXPos()) || (hero.getXPos() + hero.getHeroImage().getWidth() < enemy.getXPos() + enemy.getHeroImage().getWidth() && hero.getXPos() + hero.getHeroImage().getWidth() > enemy.getXPos())) {
-
-            horizontalCollision = true;
-
-        }
-
-        if((hero.getYPos() < enemy.getYPos() + enemy.getHeroImage().getHeight() && hero.getYPos() > enemy.getYPos()) || (hero.getYPos() + hero.getHeroImage().getHeight() < enemy.getYPos() + enemy.getHeroImage().getHeight() && hero.getYPos() + hero.getHeroImage().getHeight() > enemy.getYPos())) {
-
-            verticalCollision = true;
-
-        }
-        
-        return (horizontalCollision && verticalCollision);
-    	
-    }
-    
     //updates position of hero based on current state of the input
     //TODO: when hero collides, the hero should likely be placed next to the wall, rather than denied movement
-    public void updateHeroPos() throws FileNotFoundException
+    public void updateHeroPos()
     {
         
         if (input.isControlPressed()) {
@@ -175,6 +234,7 @@ public class Game
                 //do nothing
             } else {
                 if(isExit(hero.getXPos(), hero.getYPos() - hero.getSpeed(), 'n') == 't') {
+                    clearProjectiles();
                     hero.incrementYPos(Block.HEIGHT*(ROOMHEIGHT-3));
                     hero.setXPos(GameCanvas.IMAGE_WIDTH/2-hero.getHeroImage().getWidth()/2);
                     floor.RoomUp();
@@ -183,6 +243,7 @@ public class Game
                     canvas.generateBackground();
                     canvas.generateMap();
                 } else if (isExit(hero.getXPos(), hero.getYPos() - hero.getSpeed(), 'n') == 'e') {
+                    clearProjectiles();
                     hero.setXPos(GameCanvas.IMAGE_WIDTH/2-hero.getHeroImage().getWidth()/2);
                     hero.setYPos(GameCanvas.IMAGE_HEIGHT/2-hero.getHeroImage().getHeight()/2);
                     depth += 1;
@@ -203,6 +264,7 @@ public class Game
                 //do nothing
             } else {
                 if(isExit(hero.getXPos(), hero.getYPos() + hero.getSpeed(), 's') == 't') {
+                    clearProjectiles();
                     hero.incrementYPos(-Block.HEIGHT*(ROOMHEIGHT-3));
                     hero.setXPos(GameCanvas.IMAGE_WIDTH/2-hero.getHeroImage().getWidth()/2);
                     floor.RoomDown();
@@ -211,6 +273,7 @@ public class Game
                     canvas.generateBackground();
                     canvas.generateMap();
                 } else if (isExit(hero.getXPos(), hero.getYPos() + hero.getSpeed(), 's') == 'e') {
+                    clearProjectiles();
                     hero.setXPos(GameCanvas.IMAGE_WIDTH/2-hero.getHeroImage().getWidth()/2);
                     hero.setYPos(GameCanvas.IMAGE_HEIGHT/2-hero.getHeroImage().getHeight()/2);
                     depth += 1;
@@ -231,6 +294,7 @@ public class Game
                 //do nothing
             } else {
                 if(isExit(hero.getXPos() - hero.getSpeed(), hero.getYPos(), 'w') == 't') {
+                    clearProjectiles();
                     hero.incrementXPos(Block.WIDTH*(ROOMWIDTH-3));
                     hero.setYPos(GameCanvas.IMAGE_HEIGHT/2-hero.getHeroImage().getHeight()/2);
                     floor.RoomLeft();
@@ -239,6 +303,7 @@ public class Game
                     canvas.generateBackground();
                     canvas.generateMap();
                 } else if (isExit(hero.getXPos() - hero.getSpeed(), hero.getYPos(), 'w') == 'e') {
+                    clearProjectiles();
                     hero.setXPos(GameCanvas.IMAGE_WIDTH/2-hero.getHeroImage().getWidth()/2);
                     hero.setYPos(GameCanvas.IMAGE_HEIGHT/2-hero.getHeroImage().getHeight()/2);
                     depth += 1;
@@ -261,6 +326,7 @@ public class Game
                 //do nothing
             } else {
                 if(isExit(hero.getXPos() + hero.getSpeed(), hero.getYPos(), 'e') == 't') {
+                    clearProjectiles();
                     hero.incrementXPos(-Block.WIDTH*(ROOMWIDTH-3));
                     hero.setYPos(GameCanvas.IMAGE_HEIGHT/2-hero.getHeroImage().getHeight()/2);
                     floor.RoomRight();
@@ -269,6 +335,7 @@ public class Game
                     canvas.generateBackground();
                     canvas.generateMap();
                 } else if (isExit(hero.getXPos() + hero.getSpeed(), hero.getYPos(), 'e') == 'e') {
+                    clearProjectiles();
                     hero.setXPos(GameCanvas.IMAGE_WIDTH/2-hero.getHeroImage().getWidth()/2);
                     hero.setYPos(GameCanvas.IMAGE_HEIGHT/2-hero.getHeroImage().getHeight()/2);
                     depth += 1;
@@ -285,6 +352,14 @@ public class Game
         
     }
 
+    public void clearProjectiles()
+    {
+        for(int i = 0; i < projectiles.length; i++)
+        {
+            projectiles[i] = null;
+        }
+        currProjIndex = 0;
+    }
     public void setBlock(int x, int y, Block block)
     {
         map.currentMap[x][y] = block;
@@ -344,6 +419,22 @@ public class Game
         }
         
         return '-';
+
+    }
+
+    public void fire(double dir)
+    {
+
+        //get hero x,y and then find direction
+        //double dir = (Math.atan(hero.getYPos() / hero.getXPos()));
+        //Fire projectile at direction with speed and damage that is allied
+        if(currFireCooldown == 0)
+        {
+            projectiles[currProjIndex] = new Projectile(dir, 3, 5, true, hero.getXPos(), hero.getYPos(), this);
+            currProjIndex = (currProjIndex + 1) % projectiles.length;
+            currFireCooldown = FIRE_COOLDOWN;
+        }
+        //canvas.projectile = alliedShot;
 
     }
 
