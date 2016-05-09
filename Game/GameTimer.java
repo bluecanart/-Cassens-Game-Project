@@ -28,7 +28,11 @@ public class GameTimer extends TimerTask
     public void run()//method is called repeatedly by timer
     {
 
-        game.tick();
+        try {
+            game.tick();
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(GameTimer.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
     }
 

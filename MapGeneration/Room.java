@@ -19,7 +19,7 @@ public class Room {
     public char[][] layout;
     public char type;
     public String rooms;
-    
+    public boolean cleared = false;
     final int ROOMWIDTH = 15;
     final int ROOMHEIGHT = 9;
     

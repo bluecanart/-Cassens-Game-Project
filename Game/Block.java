@@ -17,7 +17,9 @@ public class Block
     public static final int DOOR = 3;
     public static final int EXIT = 4;
     public static final int WALL = 5;
-
+    public static final int LOCKEDDOOR = 6;
+    public static final int LOCKEDEXIT = 7;
+    
     public static final int WIDTH = 32;
     public static final int HEIGHT = 32;
 
@@ -29,6 +31,37 @@ public class Block
 
     //TODO: consider if this constructor is a good idea, should be adaptable to many types of blocks, may become unwieldy with too many types
     public Block(int type)
+    {
+        setType(type);
+    }
+
+
+
+    public BufferedImage getBlockImage()
+    {
+        return blockImage;
+    }
+
+    //TODO: consider if this function is needed.
+    public int[] getRGBArray()
+    {
+
+        RGBArray = new int[WIDTH * HEIGHT];
+
+        for (int i = 0; i < (WIDTH * HEIGHT); i++)
+        {
+            RGBArray[i] = this.blockImage.getRGB(i % WIDTH, i / WIDTH);
+        }
+
+        return RGBArray;
+    }
+
+    public int getType()
+    {
+        return type;
+    }
+    
+    public void setType(int type)
     {
         switch(type)
         {
@@ -56,6 +89,12 @@ public class Block
                 this.type = type;
                 break;
                 
+            case LOCKEDDOOR:
+                blockImage = Assets.wallImage;
+                this.isCollidable = true;
+                this.type = type;
+                break;
+                
             case WALL:
                 blockImage = Assets.wallImage;
                 this.isCollidable = true;
@@ -67,36 +106,16 @@ public class Block
                 this.isCollidable = false;
                 this.type = type;
                 break;
+                
+            case LOCKEDEXIT:
+                blockImage = Assets.lockedExitImage;
+                this.isCollidable = false;
+                this.type = type;
+                break;
 
             default:
                 System.out.println("WARNING: Invalid Block Type " + type);//TODO: perhaps throw an exception or construct with some default values if code reaches here
         }
-    }
-
-
-
-    public BufferedImage getBlockImage()
-    {
-        return blockImage;
-    }
-
-    //TODO: consider if this function is needed.
-    public int[] getRGBArray()
-    {
-
-        RGBArray = new int[WIDTH * HEIGHT];
-
-        for (int i = 0; i < (WIDTH * HEIGHT); i++)
-        {
-            RGBArray[i] = this.blockImage.getRGB(i % WIDTH, i / WIDTH);
-        }
-
-        return RGBArray;
-    }
-
-    public int getType()
-    {
-        return type;
     }
 
 }

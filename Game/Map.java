@@ -14,7 +14,7 @@ public class Map
     public static int BLOCKS_WIDE;
     public static int BLOCKS_TALL;
 
-    protected Block[][] currentMap;
+    public Block[][] currentMap;
 
     public Map(Room room, int ROOMWIDTH, int ROOMHEIGHT)
     {

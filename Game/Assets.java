@@ -28,6 +28,8 @@ public class Assets
     protected static BufferedImage wallImage;
     protected static BufferedImage enemyImage;
     protected static BufferedImage projectileImage;
+    protected static BufferedImage enemyProjectileImage;
+    protected static BufferedImage lockedExitImage;
     //loads images
     static
     {
@@ -151,6 +153,28 @@ public class Assets
             heroInvulnerableImage = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
             heroInvulnerableImage.setRGB(0,0,32, 32,RGBArray, 0 ,32);
             
+            enemyProjectileImage = ImageIO.read(new File("./src/media/Projectile2.png"));
+            enemyProjectileImage = ImageConverter.convertImage(enemyProjectileImage, BufferedImage.TYPE_4BYTE_ABGR);
+
+
+            transColor = enemyProjectileImage.getRGB(0,0);
+
+            for (int i = 0; i < (IMAGE_WIDTH * IMAGE_HEIGHT); i++)
+            {
+                if(transColor == enemyProjectileImage.getRGB(i % IMAGE_WIDTH, i/IMAGE_HEIGHT))
+                {
+                    enemyProjectileImage.setRGB(i % IMAGE_WIDTH, i / IMAGE_HEIGHT, 0);
+                    RGBArray[i] = 0x00000000;
+                }
+                else
+                {
+                    RGBArray[i] = enemyProjectileImage.getRGB(i % IMAGE_WIDTH, i / IMAGE_HEIGHT);
+                }
+
+            }
+            enemyProjectileImage = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+            enemyProjectileImage.setRGB(0,0,32,32,RGBArray, 0, 32);
+            
             enemyImage = ImageIO.read(new File("./src/media/Enemy.png"));
             enemyImage = ImageConverter.convertImage(enemyImage, BufferedImage.TYPE_4BYTE_ABGR);
             
@@ -183,6 +207,9 @@ public class Assets
             
             exitImage = ImageIO.read(new File("./src/media/Exit.png"));
             exitImage = ImageConverter.convertImage(exitImage, BufferedImage.TYPE_4BYTE_ABGR);
+            
+            lockedExitImage = ImageIO.read(new File("./src/media/Exit.png"));
+            lockedExitImage = ImageConverter.convertImage(exitImage, BufferedImage.TYPE_4BYTE_ABGR);
             
             wallImage = ImageIO.read(new File("./src/media/Wall.png"));
             wallImage = ImageConverter.convertImage(wallImage, BufferedImage.TYPE_4BYTE_ABGR);

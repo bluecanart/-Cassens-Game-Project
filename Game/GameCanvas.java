@@ -161,6 +161,10 @@ public class GameCanvas extends Canvas
         canvasGraphics.fillRect(4, 10, 95, 13);
         canvasGraphics.setColor(Color.BLACK);
         canvasGraphics.drawString("Current Floor: " + game.depth, 6, 20);
+        canvasGraphics.setColor(textColor);
+        canvasGraphics.fillRect(113, 10, 60, 13);
+        canvasGraphics.setColor(Color.BLACK);
+        canvasGraphics.drawString("Score: " + game.score, 115, 20);
         canvasGraphics.setColor(Color.RED);
         canvasGraphics.fillRect(3, IMAGE_HEIGHT - 20, 100, 10);
         canvasGraphics.setColor(Color.GREEN);

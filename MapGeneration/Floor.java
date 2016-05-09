@@ -86,4 +86,10 @@ public class Floor {
         return floor[curY][curX];
         
     }
+    
+    public void clearCurrentRoom() {
+        
+        floor[curY][curX].cleared = true;
+        
+    }
 }

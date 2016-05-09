@@ -35,9 +35,10 @@ public class Game
     private int currProjIndex = 0;
     public static final int FIRE_COOLDOWN = 15;
     protected int currFireCooldown;
+    public int score = 0;
 
 
-    public Game()
+    public Game() throws FileNotFoundException
     {
         //initializes frame and canvas\
         Random myRand = new Random();
@@ -70,7 +71,7 @@ public class Game
 
 
 
-    public void tick()
+    public void tick() throws FileNotFoundException
     {
         //update stuff
         updateHeroPos();
@@ -115,6 +116,34 @@ public class Game
                         if(!enemy.isAlive)
                         {
                             enemies.remove(enemy);
+                            score += 1;
+                            if(enemies.size() <= 0) {
+                                
+                                floor.clearCurrentRoom();
+            
+                                for (int t = 0; t < ROOMWIDTH; t++) {
+
+                                    for (int s = 0; s < ROOMHEIGHT; s++) {
+
+                                        if(map.currentMap[t][s].getType() == Block.LOCKEDDOOR) {
+
+                                            map.currentMap[t][s].setType(Block.DOOR);
+
+                                        }
+                                        
+                                        if(map.currentMap[t][s].getType() == Block.LOCKEDEXIT) {
+
+                                            map.currentMap[t][s].setType(Block.EXIT);
+
+                                        }
+
+                                    }
+
+                                }
+                                    
+                                canvas.generateBackground();
+                                
+                            }
                         }
                         break;
                     }
@@ -144,25 +173,60 @@ public class Game
         canvas.render();
     }
 
-    public void repopulateEnemies() {
-        
-        enemies.removeAll(enemies);
-        
-        for (int i = 0; i < ROOMHEIGHT; i++) {
-            
-            for (int s = 0; s < ROOMWIDTH; s++) {
-                
-                switch(floor.getCurrentRoom().layout[i][s]) {
-                    
-                    case '1':
-                        enemies.add(new Enemy(Assets.enemyImage, s*Block.HEIGHT, (i)*Block.WIDTH));
-                        //System.out.println("Enemy Added");
-                        break;
-                    
+        public void repopulateEnemies() {
+
+        if(!floor.getCurrentRoom().cleared) {
+
+            enemies.removeAll(enemies);
+
+            for (int i = 0; i < ROOMHEIGHT; i++) {
+
+                for (int s = 0; s < ROOMWIDTH; s++) {
+
+                    switch(floor.getCurrentRoom().layout[i][s]) {
+
+                        case '1':
+                            enemies.add(new Enemy(Assets.enemyImage, s*Block.HEIGHT, (i)*Block.WIDTH));
+                            //System.out.println("Enemy Added");
+                            break;
+
+                    }
+
                 }
+
+            }
+
+
+            if(enemies.size() > 0) {
+
+                for (int i = 0; i < ROOMWIDTH; i++) {
+
+                    for (int s = 0; s < ROOMHEIGHT; s++) {
+
+                        if(map.currentMap[i][s].getType() == Block.DOOR) {
+
+                            map.currentMap[i][s].setType(Block.LOCKEDDOOR);
+
+                        }
+                        
+                        if(map.currentMap[i][s].getType() == Block.EXIT) {
+
+                            map.currentMap[i][s].setType(Block.LOCKEDEXIT);
+
+                        }
+
+                    }
+
+                }
+
+            } else {
+                
+                floor.clearCurrentRoom();
                 
             }
-            
+
+        canvas.generateBackground();
+        
         }
         
     }
@@ -217,7 +281,7 @@ public class Game
     
     //updates position of hero based on current state of the input
     //TODO: when hero collides, the hero should likely be placed next to the wall, rather than denied movement
-    public void updateHeroPos()
+    public void updateHeroPos() throws FileNotFoundException
     {
         
         if (input.isControlPressed()) {
@@ -249,6 +313,7 @@ public class Game
                     depth += 1;
                     floor = new Floor(ROOMS, FLOORSIZE, seed, depth);
                     map.updateMap(floor.getCurrentRoom());
+                    score+=10;
                     repopulateEnemies();
                     canvas.generateBackground();
                     canvas.generateMap();
@@ -279,6 +344,7 @@ public class Game
                     depth += 1;
                     floor = new Floor(ROOMS, FLOORSIZE, seed, depth);
                     map.updateMap(floor.getCurrentRoom());
+                    score+=10;
                     repopulateEnemies();
                     canvas.generateBackground();
                     canvas.generateMap();
@@ -309,6 +375,7 @@ public class Game
                     depth += 1;
                     floor = new Floor(ROOMS, FLOORSIZE, seed, depth);
                     map.updateMap(floor.getCurrentRoom());
+                    score+=10;
                     repopulateEnemies();
                     canvas.generateBackground();
                     canvas.generateMap();
@@ -341,6 +408,7 @@ public class Game
                     depth += 1;
                     floor = new Floor(ROOMS, FLOORSIZE, seed, depth);
                     map.updateMap(floor.getCurrentRoom());
+                    score+=10;
                     repopulateEnemies();
                     canvas.generateBackground();
                     canvas.generateMap();

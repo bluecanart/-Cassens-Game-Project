@@ -20,6 +20,9 @@ public class Projectile {
         ySpeed = inSpeed * Math.sin(inDir);
         damage = inDamage;
         friendly = inFriend;
+        if(!friendly) {
+            projImage = Assets.enemyProjectileImage;
+        }
         this.game = game;
     }
 
