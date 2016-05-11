@@ -20,6 +20,8 @@ public class Hero
     private final int STARTINGHEALTH = 100;
     private int health = STARTINGHEALTH;
     private boolean alive = true;
+    private int shotSpeed = 4;
+    int damage = 5;
 
     private BufferedImage heroImage;
 
@@ -68,6 +70,12 @@ public class Hero
     public int getInvulnerable() {
         
         return invulnerable;
+        
+    }
+    
+    public int getShotSpeed() {
+        
+        return shotSpeed;
         
     }
     

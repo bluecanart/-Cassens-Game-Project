@@ -135,6 +135,15 @@ public class GameCanvas extends Canvas
         
         //canvasGraphics.drawImage(game.getHero().getHeroImage(), game.getHero().getXPos(), game.getHero().getYPos(), game.getHero().getXPos() + Hero.IMAGE_WIDTH, game.getHero().getYPos() + Hero.IMAGE_HEIGHT, 0, 0, Hero.IMAGE_WIDTH, Hero.IMAGE_HEIGHT, null);
         
+        
+        for (Projectile projectile: game.projectiles)
+        {
+            if (projectile != null)
+            {
+                canvasGraphics.drawImage(projectile.projImage, (int) projectile.x, (int) projectile.y, null);
+            }
+        }
+        
         for(Enemy enemy: game.getEnemies()) {
 
             if (enemy.isAlive)
@@ -178,13 +187,6 @@ public class GameCanvas extends Canvas
         if(Main.debugMode)
         {
             debugRender(canvasGraphics);
-        }
-        for (Projectile projectile: game.projectiles)
-        {
-            if (projectile != null)
-            {
-                canvasGraphics.drawImage(projectile.projImage, (int) projectile.x, (int) projectile.y, null);
-            }
         }
         bufferStrategy.show();
         canvasGraphics.dispose();

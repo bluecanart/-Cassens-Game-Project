@@ -69,6 +69,8 @@ class RoomPanel extends JPanel {
         stringMap.put('r', "Rock");
         stringMap.put('d', "Door");
         stringMap.put('1', "Enemy1");
+        stringMap.put('2', "Enemy2");
+        stringMap.put('3', "Enemy3");
         
         uniqueMap.put("0000", 1);
         uniqueMap.put("1000", 2);
@@ -155,6 +157,8 @@ null, options1, options1[0])];
         getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "save");
         getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "new");
         getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_1, 0), "Enemy1");
+        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_2, 0), "Enemy2");
+        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_3, 0), "Enemy3");
         
         getActionMap().put("empty", new AbstractAction() {
             @Override
@@ -169,6 +173,22 @@ null, options1, options1[0])];
             public void actionPerformed(ActionEvent e) {
                 mode = '1';
                 System.out.println("Draw mode is now: Enemy 1");
+                repaint();
+            }
+        });
+        getActionMap().put("Enemy2", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mode = '2';
+                System.out.println("Draw mode is now: Enemy 2");
+                repaint();
+            }
+        });
+        getActionMap().put("Enemy3", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mode = '3';
+                System.out.println("Draw mode is now: Enemy 3");
                 repaint();
             }
         });
@@ -231,6 +251,8 @@ null, options1, options1[0])];
                 stringMap.put('r', "Rock");
                 stringMap.put('d', "Door");
                 stringMap.put('1', "Enemy1");
+                stringMap.put('2', "Enemy2");
+                stringMap.put('3', "Enemy3");
                 
                 String[] options1 = {"Boss Room", "Start Room", "Normal Room"};
                 String[] trueOptions = {"x", "o", "+"};
@@ -308,6 +330,8 @@ null, options1, options1[0])];
         myMap.put('r', new Color(125, 114, 98));
         myMap.put('d', new Color(255, 255, 255));
         myMap.put('1', new Color(255, 242, 0));
+        myMap.put('2', new Color(160, 221, 90));
+        myMap.put('3', new Color(180, 114, 223));
         
         for (int i = 0; i < ROOMHEIGHT; i++) {
             

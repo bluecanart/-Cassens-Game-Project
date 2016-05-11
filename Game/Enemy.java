@@ -16,7 +16,9 @@ public class Enemy
     private int speed;//pixels moved per tick
     private int health;
     private int maxHealth;
-    protected boolean isAlive;
+    protected boolean isAlive = true;
+    int damage;
+    private int shotSpeed;
     int fireCD;
     int currfireCD;
 
@@ -30,11 +32,28 @@ public class Enemy
         this.xPos = xPos;
         this.yPos = yPos;
         this.speed = 4;
+        shotSpeed = 3;
         health = 20;
         maxHealth = 20;
         isAlive = true;
         fireCD = 40;
         currfireCD = 40;
+        damage = 5;
+    }
+    
+    public Enemy(BufferedImage enemyImage, int xPos, int yPos, int shotSpeed, int speed, int maxHealth, int curfireCD, int damage)
+    {
+        this.enemyImage = enemyImage;
+        //initial position
+        this.xPos = xPos;
+        this.yPos = yPos;
+        this.speed = speed;
+        this.shotSpeed = shotSpeed;
+        this.maxHealth = maxHealth;
+        health = maxHealth;
+        fireCD = curfireCD;
+        this.currfireCD = curfireCD;
+        this.damage = damage;
     }
 
 
@@ -59,6 +78,11 @@ public class Enemy
     public int getHealthLeft() {
         
         return health;
+        
+    }
+    public int getShotSpeed() {
+        
+        return shotSpeed;
         
     }
     public int getMaxHealth()

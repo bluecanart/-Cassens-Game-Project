@@ -65,7 +65,6 @@ public class Game
         repopulateEnemies();
         currFireCooldown = 0;
 
-
     }
 
 
@@ -77,6 +76,7 @@ public class Game
         updateHeroPos();
         checkHeroDamage();
         hero.decrementCooldowns();
+        moveEnemies();
         if (currFireCooldown > 0)
         {
             currFireCooldown  -= 1;
@@ -88,92 +88,107 @@ public class Game
             {
                 enemy.currfireCD = enemy.fireCD;
                 double dir = (Math.atan2(((hero.getYPos() + 16) -  (enemy.getYPos())) , ((hero.getXPos() + 16) -  (enemy.getXPos()))));
-                projectiles[currProjIndex] = new Projectile(dir, 3, 5, false, enemy.getXPos(), enemy.getYPos(), this);
+                projectiles[currProjIndex] = new Projectile(dir, enemy.getShotSpeed(), enemy.damage, false, enemy.getXPos(), enemy.getYPos(), 160, this);
                 currProjIndex = (currProjIndex + 1) % projectiles.length;
 
             }
         }
+        
+        for (int i = 0; i < projectiles.length; i++) {
+            
+            if(projectiles[i] != null && projectiles[i].life <= 0) {
+                
+                projectiles[i] = null;
+                
+            }
+            
+        }
+        
         //draw stuff
         if (hero.isDead()) {
             System.out.println("You died!");
+            System.out.println("Final Score: " + score);
             System.exit(0);
         }
-
-
-        //checks projectile collisions
-        for (int i = 0; i < projectiles.length; i++)
-        {
-            if (projectiles[i] != null)
-            {
-                projectiles[i].step();
-
-                for (Enemy enemy : enemies)
-                {
-                    if (projectiles[i].friendly && (Math.abs(projectiles[i].x - enemy.getXPos()) <= 16) && (Math.abs((projectiles[i].y - enemy.getYPos())) <= 16))
-                    {
-                        enemy.takeDamage(projectiles[i].damage);
-                        projectiles[i] = null;
-                        if(!enemy.isAlive)
-                        {
-                            enemies.remove(enemy);
-                            score += 1;
-                            if(enemies.size() <= 0) {
-                                
-                                floor.clearCurrentRoom();
+        checkProjectileCollisions();
+        canvas.render();
+    }
+    
+    public void checkProjectileCollisions() {
             
-                                for (int t = 0; t < ROOMWIDTH; t++) {
+            //checks projectile collisions
+            for (int i = 0; i < projectiles.length; i++)
+            {
+                if (projectiles[i] != null)
+                {
+                    projectiles[i].step();
 
-                                    for (int s = 0; s < ROOMHEIGHT; s++) {
+                    for (Enemy enemy : enemies)
+                    {
+                        if (projectiles[i].friendly && (Math.abs(projectiles[i].x - enemy.getXPos()) <= 16) && (Math.abs((projectiles[i].y - enemy.getYPos())) <= 16))
+                        {
+                            enemy.takeDamage(projectiles[i].damage);
+                            projectiles[i] = null;
+                            if(!enemy.isAlive)
+                            {
+                                enemies.remove(enemy);
+                                score += 1;
+                                if(enemies.size() <= 0) {
 
-                                        if(map.currentMap[t][s].getType() == Block.LOCKEDDOOR) {
+                                    floor.clearCurrentRoom();
 
-                                            map.currentMap[t][s].setType(Block.DOOR);
+                                    for (int t = 0; t < ROOMWIDTH; t++) {
 
-                                        }
-                                        
-                                        if(map.currentMap[t][s].getType() == Block.LOCKEDEXIT) {
+                                        for (int s = 0; s < ROOMHEIGHT; s++) {
 
-                                            map.currentMap[t][s].setType(Block.EXIT);
+                                            if(map.currentMap[t][s].getType() == Block.LOCKEDDOOR) {
+
+                                                map.currentMap[t][s].setType(Block.DOOR);
+
+                                            }
+
+                                            if(map.currentMap[t][s].getType() == Block.LOCKEDEXIT) {
+
+                                                map.currentMap[t][s].setType(Block.EXIT);
+
+                                            }
 
                                         }
 
                                     }
 
+                                    canvas.generateBackground();
+
                                 }
-                                    
-                                canvas.generateBackground();
-                                
                             }
+                            break;
                         }
-                        break;
+
                     }
 
-                }
+                    if(projectiles[i] != null && !projectiles[i].friendly && (Math.abs(projectiles[i].x - hero.getXPos()) <= 16) && (Math.abs((projectiles[i].y - hero.getYPos())) <= 16))
+                    {
+                        hero.takeDamage((projectiles[i].damage));
+                        projectiles[i] = null;
+                    }
 
-                if(projectiles[i] != null && !projectiles[i].friendly && (Math.abs(projectiles[i].x - hero.getXPos()) <= 16) && (Math.abs((projectiles[i].y - hero.getYPos())) <= 16))
+                    }
+
+
+                    if (projectiles[i] != null && projectiles[i].collides())
                 {
-                    hero.takeDamage((projectiles[i].damage));
+                    if (Main.debugMode)
+                    {
+                        System.out.println("Projectile " + i + " Collided!");
+                    }
                     projectiles[i] = null;
                 }
 
-                }
-
-
-                if (projectiles[i] != null && projectiles[i].collides())
-            {
-                if (Main.debugMode)
-                {
-                    System.out.println("Projectile " + i + " Collided!");
-                }
-                projectiles[i] = null;
             }
-
-        }
-
-        canvas.render();
+            
     }
-
-        public void repopulateEnemies() {
+    
+    public void repopulateEnemies() {
 
         if(!floor.getCurrentRoom().cleared) {
 
@@ -185,8 +200,23 @@ public class Game
 
                     switch(floor.getCurrentRoom().layout[i][s]) {
 
+                        
+                        //BufferedImage enemyImage, int xPos, int yPos, int shotSpeed, int speed, int maxHealth, int curfireCD, int damage
                         case '1':
-                            enemies.add(new Enemy(Assets.enemyImage, s*Block.HEIGHT, (i)*Block.WIDTH));
+                            //snake
+                            enemies.add(new Enemy(Assets.enemyImage, s*Block.HEIGHT, (i)*Block.WIDTH, 0, 2, 25, 8, 10));
+                            //System.out.println("Enemy Added");
+                            break;
+                            
+                        case '2':
+                            //turret
+                            enemies.add(new Enemy(Assets.enemyImage2, s*Block.HEIGHT, (i)*Block.WIDTH, 4, 0, 20, 40, 5));
+                            //System.out.println("Enemy Added");
+                            break;
+                            
+                        case '3':
+                            //glasscannon
+                            enemies.add(new Enemy(Assets.enemyImage3, s*Block.HEIGHT, (i)*Block.WIDTH, 2, 1, 15, 35, 7));
                             //System.out.println("Enemy Added");
                             break;
 
@@ -227,6 +257,30 @@ public class Game
 
         canvas.generateBackground();
         
+        }
+        
+    }
+    
+    public void moveEnemies() {
+        
+        for(int i = 0; i < enemies.size(); i++) {
+            
+            if(enemies.get(i).getSpeed() > 0) {
+                
+                int xDir = hero.getXPos() - enemies.get(i).getXPos();
+                int yDir = hero.getYPos() - enemies.get(i).getYPos();
+                int xDist = Math.abs(xDir);
+                int yDist = Math.abs(yDir);
+                
+                if (xDist > yDist && !collides(enemies.get(i).getXPos() + (enemies.get(i).getSpeed() * Integer.signum(xDir)), enemies.get(i).getYPos())){
+                    enemies.get(i).setXPos(enemies.get(i).getXPos() + (enemies.get(i).getSpeed() * Integer.signum(xDir)));
+                } else if (!collides(enemies.get(i).getXPos(), enemies.get(i).getYPos()  + (enemies.get(i).getSpeed() * Integer.signum(yDir)))){
+                    enemies.get(i).setYPos(enemies.get(i).getYPos() + (enemies.get(i).getSpeed() * Integer.signum(yDir)));
+                } else if (!collides(enemies.get(i).getXPos() + (enemies.get(i).getSpeed() * Integer.signum(xDir)), enemies.get(i).getYPos())) {
+                    enemies.get(i).setXPos(enemies.get(i).getXPos() + (enemies.get(i).getSpeed() * Integer.signum(xDir)));
+                }
+            }
+            
         }
         
     }
@@ -294,7 +348,7 @@ public class Game
         
         if (input.isUpPressed())
         {
-            if (heroCollides(hero.getXPos(), hero.getYPos() - hero.getSpeed())) {
+            if (collides(hero.getXPos(), hero.getYPos() - hero.getSpeed())) {
                 //do nothing
             } else {
                 if(isExit(hero.getXPos(), hero.getYPos() - hero.getSpeed(), 'n') == 't') {
@@ -325,7 +379,7 @@ public class Game
 
         if (input.isDownPressed())
         {
-            if (heroCollides(hero.getXPos(), hero.getYPos() + hero.getSpeed())) {
+            if (collides(hero.getXPos(), hero.getYPos() + hero.getSpeed())) {
                 //do nothing
             } else {
                 if(isExit(hero.getXPos(), hero.getYPos() + hero.getSpeed(), 's') == 't') {
@@ -356,7 +410,7 @@ public class Game
 
         if (input.isLeftPressed())
         {
-            if (heroCollides(hero.getXPos() - hero.getSpeed(), hero.getYPos())) {
+            if (collides(hero.getXPos() - hero.getSpeed(), hero.getYPos())) {
                 //do nothing
             } else {
                 if(isExit(hero.getXPos() - hero.getSpeed(), hero.getYPos(), 'w') == 't') {
@@ -388,7 +442,7 @@ public class Game
 
         if (input.isRightPressed())
         {
-            if (heroCollides(hero.getXPos() + hero.getSpeed(), hero.getYPos()))
+            if (collides(hero.getXPos() + hero.getSpeed(), hero.getYPos()))
             {
                 //do nothing
             } else {
@@ -435,7 +489,7 @@ public class Game
     }
 
 
-    public boolean heroCollides(int newX, int newY)
+    public boolean collides(int newX, int newY)
     {
 
 
@@ -498,7 +552,7 @@ public class Game
         //Fire projectile at direction with speed and damage that is allied
         if(currFireCooldown == 0)
         {
-            projectiles[currProjIndex] = new Projectile(dir, 3, 5, true, hero.getXPos(), hero.getYPos(), this);
+            projectiles[currProjIndex] = new Projectile(dir, hero.getShotSpeed(), hero.damage, true, hero.getXPos(), hero.getYPos(), 100, this);
             currProjIndex = (currProjIndex + 1) % projectiles.length;
             currFireCooldown = FIRE_COOLDOWN;
         }

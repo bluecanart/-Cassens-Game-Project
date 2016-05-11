@@ -27,6 +27,8 @@ public class Assets
     protected static BufferedImage exitImage;
     protected static BufferedImage wallImage;
     protected static BufferedImage enemyImage;
+    protected static BufferedImage enemyImage2;
+    protected static BufferedImage enemyImage3;
     protected static BufferedImage projectileImage;
     protected static BufferedImage enemyProjectileImage;
     protected static BufferedImage lockedExitImage;
@@ -201,6 +203,60 @@ public class Assets
             
             enemyImage = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
             enemyImage.setRGB(0,0,32, 32,RGBArray, 0 ,32);
+            
+            enemyImage2 = ImageIO.read(new File("./src/media/Enemy2.png"));
+            enemyImage2 = ImageConverter.convertImage(enemyImage2, BufferedImage.TYPE_4BYTE_ABGR);
+            
+            IMAGE_WIDTH = enemyImage2.getWidth();
+            IMAGE_HEIGHT = enemyImage2.getHeight();
+            
+            RGBArray = new int[IMAGE_WIDTH * IMAGE_HEIGHT];
+
+            transColor = enemyImage2.getRGB(0,0);
+            
+            for (int i = 0; i < (IMAGE_WIDTH * IMAGE_HEIGHT); i++)
+            {
+                if(transColor == enemyImage2.getRGB(i % IMAGE_WIDTH, i/IMAGE_HEIGHT))
+                {
+                    enemyImage2.setRGB(i % IMAGE_WIDTH, i / IMAGE_HEIGHT, 0);
+                    RGBArray[i] = 0x00000000;
+                }
+                else
+                {
+                    RGBArray[i] = enemyImage2.getRGB(i % IMAGE_WIDTH, i / IMAGE_HEIGHT);
+                }
+                
+            }
+            
+            enemyImage2 = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+            enemyImage2.setRGB(0,0,32, 32,RGBArray, 0 ,32);
+            
+            enemyImage3 = ImageIO.read(new File("./src/media/Enemy3.png"));
+            enemyImage3 = ImageConverter.convertImage(enemyImage3, BufferedImage.TYPE_4BYTE_ABGR);
+            
+            IMAGE_WIDTH = enemyImage3.getWidth();
+            IMAGE_HEIGHT = enemyImage3.getHeight();
+            
+            RGBArray = new int[IMAGE_WIDTH * IMAGE_HEIGHT];
+
+            transColor = enemyImage3.getRGB(0,0);
+            
+            for (int i = 0; i < (IMAGE_WIDTH * IMAGE_HEIGHT); i++)
+            {
+                if(transColor == enemyImage3.getRGB(i % IMAGE_WIDTH, i/IMAGE_HEIGHT))
+                {
+                    enemyImage3.setRGB(i % IMAGE_WIDTH, i / IMAGE_HEIGHT, 0);
+                    RGBArray[i] = 0x00000000;
+                }
+                else
+                {
+                    RGBArray[i] = enemyImage3.getRGB(i % IMAGE_WIDTH, i / IMAGE_HEIGHT);
+                }
+                
+            }
+            
+            enemyImage3 = new BufferedImage(32, 32, BufferedImage.TYPE_INT_ARGB);
+            enemyImage3.setRGB(0,0,32, 32,RGBArray, 0 ,32);
 
             waterImage = ImageIO.read(new File("./src/media/Water.png"));
             waterImage = ImageConverter.convertImage(waterImage, BufferedImage.TYPE_4BYTE_ABGR);

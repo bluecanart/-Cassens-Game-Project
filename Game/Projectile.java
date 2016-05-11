@@ -8,12 +8,13 @@ public class Projectile {
     double y;
     double xSpeed;
     double ySpeed;
+    int life;
     int damage;
     boolean friendly;
     BufferedImage projImage = Assets.projectileImage;
     Game game;
 
-    public Projectile(double inDir, int inSpeed, int inDamage, boolean inFriend, int initialX, int initialY, Game game){
+    public Projectile(double inDir, int inSpeed, int inDamage, boolean inFriend, int initialX, int initialY, int life, Game game){
         x = initialX;
         y = initialY;
         xSpeed = inSpeed * Math.cos(inDir);
@@ -23,19 +24,20 @@ public class Projectile {
         if(!friendly) {
             projImage = Assets.enemyProjectileImage;
         }
+        this.life = life;
         this.game = game;
     }
 
      public void step(){
         x += xSpeed;
         y += ySpeed;
-
+        life -= 1;
     }
 
     public boolean collides()
     {
 
-        Block projBlockTypeNW;
+        /*Block projBlockTypeNW;
         Block projBlockTypeNE;
         Block projBlockTypeSW;
         Block projBlockTypeSE;
@@ -53,7 +55,16 @@ public class Projectile {
             return true;
         }
         return ((projBlockTypeNW.isCollidable)  || (projBlockTypeNE.isCollidable) ||
-                (projBlockTypeSW.isCollidable)  || (projBlockTypeSE.isCollidable) );
+                (projBlockTypeSW.isCollidable)  || (projBlockTypeSE.isCollidable) );*/
+        
+        try
+        {
+            return (game.map.currentMap[(int)((x+16) / Block.WIDTH)][(int)((y+16) / Block.HEIGHT)].isCollidable);
+        }
+        catch(ArrayIndexOutOfBoundsException e)
+        {
+            return true;
+        }
 
     }
 }
